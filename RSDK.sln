@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xe.Tools.Wpf", "Xe.Tools.Wp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RSDK_DeScript", "RSDK_DeScript\RSDK_DeScript.vcxproj", "{2EA27AAC-1AF7-493E-98ED-A69037DBDAC9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RSDK1", "RSDK1\RSDK1.csproj", "{B636EA0F-22F6-440B-81F7-7AC20BC8AE72}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,18 @@ Global
 		{2EA27AAC-1AF7-493E-98ED-A69037DBDAC9}.Release|x64.Build.0 = Release|x64
 		{2EA27AAC-1AF7-493E-98ED-A69037DBDAC9}.Release|x86.ActiveCfg = Release|Win32
 		{2EA27AAC-1AF7-493E-98ED-A69037DBDAC9}.Release|x86.Build.0 = Release|Win32
+		{B636EA0F-22F6-440B-81F7-7AC20BC8AE72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B636EA0F-22F6-440B-81F7-7AC20BC8AE72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B636EA0F-22F6-440B-81F7-7AC20BC8AE72}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B636EA0F-22F6-440B-81F7-7AC20BC8AE72}.Debug|x64.Build.0 = Debug|Any CPU
+		{B636EA0F-22F6-440B-81F7-7AC20BC8AE72}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B636EA0F-22F6-440B-81F7-7AC20BC8AE72}.Debug|x86.Build.0 = Debug|Any CPU
+		{B636EA0F-22F6-440B-81F7-7AC20BC8AE72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B636EA0F-22F6-440B-81F7-7AC20BC8AE72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B636EA0F-22F6-440B-81F7-7AC20BC8AE72}.Release|x64.ActiveCfg = Release|Any CPU
+		{B636EA0F-22F6-440B-81F7-7AC20BC8AE72}.Release|x64.Build.0 = Release|Any CPU
+		{B636EA0F-22F6-440B-81F7-7AC20BC8AE72}.Release|x86.ActiveCfg = Release|Any CPU
+		{B636EA0F-22F6-440B-81F7-7AC20BC8AE72}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
