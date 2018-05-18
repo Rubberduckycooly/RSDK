@@ -1,7 +1,8 @@
 # RSDK reverse and tools
 
 Rubberduckycooly:
-This repository is where is am hosting my new (and hopefully improved) fork of Xeeynamo's Sonic Mania Animationn Editor.
+
+This repository is where is am hosting my new (and hopefully improved) fork of Xeeynamo's Sonic Mania Animation Editor.
 
 Planned features include: 
 
