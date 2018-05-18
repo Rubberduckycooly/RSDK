@@ -22,12 +22,12 @@ namespace AnimationEditor
 
         private void MenuFileOpen_Click(object sender, RoutedEventArgs e)
         {
-            var fd = Xe.Tools.Wpf.Dialogs.FileDialog.Factory(this,
-                Xe.Tools.Wpf.Dialogs.FileDialog.Behavior.Open,
-                Xe.Tools.Wpf.Dialogs.FileDialog.Type.Any, false);
+            var fd = new OpenFileDialog();
+            fd.DefaultExt = "*.bin";
+            fd.Filter = "RSDKv1 Animation Files|*.ani|RSDKv2 Animation Files|*.ani|RSDKv3 and RSDKv4 Animation Files|*.ani|RSDKv5 Animation Files|*.bin";
             if (fd.ShowDialog() == true)
             {
-                ViewModel.FileOpen(fd.FileName);
+                ViewModel.FileOpen(fd.FileName,fd.FilterIndex -1);
             }
         }
 
@@ -38,9 +38,9 @@ namespace AnimationEditor
 
         private void MenuFileSaveAs_Click(object sender, RoutedEventArgs e)
         {
-            var fd = Xe.Tools.Wpf.Dialogs.FileDialog.Factory(this,
-                Xe.Tools.Wpf.Dialogs.FileDialog.Behavior.Save,
-                Xe.Tools.Wpf.Dialogs.FileDialog.Type.Any, false);
+            var fd = new SaveFileDialog();
+            fd.DefaultExt = "*.bin";
+            fd.Filter = "RSDKv1 Animation Files|*.ani|RSDKv2 Animation Files|*.ani|RSDKv3 and RSDKv4 Animation Files|*.ani|RSDKv5 Animation Files|*.bin";
             if (fd.ShowDialog() == true)
             {
                 ViewModel.FileSave(fd.FileName);

@@ -486,7 +486,7 @@ namespace AnimationEditor.ViewModels
             InvalidateFrameProperties();
         }
 
-        public bool FileOpen(string fileName)
+        public bool FileOpen(string fileName, int fi)
         {
             if (File.Exists(fileName))
             {
@@ -496,17 +496,23 @@ namespace AnimationEditor.ViewModels
                     using (var reader = new BinaryReader(fStream))
                     {
                         FileName = fileName;
-                        switch (ext)
+                        switch (fi)
                         {
-                            case ".ani1":
+                            case 0:
                                 PathMod = "";
                                 AnimationData = new RSDK1.Animation(reader);
                                 break;
-                            case ".ani":
+                            case 1:
+                                PathMod = "";
+                                AnimationData = new RSDK1.Animation(reader);
+                                /* PathMod = "..\\sprites";
+                                 AnimationData = new RSDK2.Animation(reader);*/
+                                break;
+                            case 2:
                                 PathMod = "..\\sprites";
                                 AnimationData = new RSDK3.Animation(reader);
                                 break;
-                            case ".bin":
+                            case 3:
                                 PathMod = "..";
                                 AnimationData = new RSDK5.Animation(reader);
                                 return false;
