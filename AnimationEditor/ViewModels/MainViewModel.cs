@@ -84,10 +84,13 @@ namespace AnimationEditor.ViewModels
                 IsHitboxV5 = !IsHitboxV3;
                 if (IsHitboxV3)
                 {
+                    if (PathMod == "..\\sprites")
+                    {
                     HitboxEntries = new ObservableCollection<IHitboxEntry>(_animationData.GetHitboxes());
                     HitboxItems = HitboxEntries != null ? new ObservableCollection<string>(
                         HitboxEntries.Select(x => GetHitboxEntryString(x)))
                         : new ObservableCollection<string>();
+                    }
                 }
                 else if (IsHitboxV5)
                 {
@@ -372,7 +375,7 @@ namespace AnimationEditor.ViewModels
 
         public int SelectedFrameDuration
         {
-            get => (SelectedFrame as RSDK5.Frame)?.Duration ?? 0;
+            get => (SelectedFrame)?.Duration ?? 0;
             set
             {
                 if (SelectedFrame is RSDK5.Frame frame)
@@ -495,6 +498,10 @@ namespace AnimationEditor.ViewModels
                         FileName = fileName;
                         switch (ext)
                         {
+                            case ".ani1":
+                                PathMod = "";
+                                AnimationData = new RSDK1.Animation(reader);
+                                break;
                             case ".ani":
                                 PathMod = "..\\sprites";
                                 AnimationData = new RSDK3.Animation(reader);
