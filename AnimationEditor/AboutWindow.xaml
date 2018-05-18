@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AnimationEditor"
         mc:Ignorable="d"
-        Title="About" Height="164" Width="288" WindowStyle="ToolWindow">
+        Title="About" Height="189.536" Width="299.917" WindowStyle="ToolWindow" SizeToContent="WidthAndHeight">
     <StackPanel Orientation="Horizontal" Margin="10">
         <Image Width="48" Source="MainIcon.ico" VerticalAlignment="Top" Margin="0 0 10 0">
             
@@ -25,6 +25,8 @@
             <Separator/>
             <TextBlock Text="Additional fixes by:"/>
             <TextBlock Text="thesupersonic16"/>
+            <TextBlock Text="More Fixes and RSDKv1 Support by:" Width="298"/>
+            <TextBlock Text="Rubberduckycooly"/>
         </StackPanel>
     </StackPanel>
 </Window>
