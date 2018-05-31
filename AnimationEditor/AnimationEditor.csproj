@@ -143,6 +143,10 @@
       <Project>{b636ea0f-22f6-440b-81f7-7ac20bc8ae72}</Project>
       <Name>RSDK1</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RSDK2\RSDK2.csproj">
+      <Project>{ccc0f140-4b87-401f-a948-4fa313d4dbde}</Project>
+      <Name>RSDK2</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RSDK3\RSDK3.csproj">
       <Project>{3189a2e5-941e-4edb-9b7d-ff4298336e13}</Project>
       <Name>RSDK3</Name>

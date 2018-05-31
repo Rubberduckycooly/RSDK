@@ -390,6 +390,23 @@ namespace AnimationEditor.ViewModels
 
         #region Hitbox
 
+        #region Hitbox v1
+        private bool _isHitboxV1;
+        public bool IsHitboxV1
+        {
+            get => _isHitboxV1;
+            set
+            {
+                _isHitboxV1 = value;
+                ValidateHitboxVisibility();
+            }
+        }
+        public bool IsNotHitboxV1 => !IsHitboxV1;
+        public Visibility HitboxV1Visibility => IsHitboxV1 ? Visibility.Visible : Visibility.Collapsed;
+        public ObservableCollection<IHitboxEntry> HitboxEntriesV1 { get; private set; }
+        public ObservableCollection<string> HitboxItemsV1 { get; private set; }
+        #endregion
+
         #region Hitbox v3
         private bool _isHitboxV3;
         public bool IsHitboxV3
@@ -436,6 +453,12 @@ namespace AnimationEditor.ViewModels
 
         private void ValidateHitboxVisibility()
         {
+            OnPropertyChanged(nameof(IsHitboxV1));
+            OnPropertyChanged(nameof(IsNotHitboxV1));
+            OnPropertyChanged(nameof(HitboxV1Visibility));
+            OnPropertyChanged(nameof(HitboxEntriesV1));
+            OnPropertyChanged(nameof(HitboxItemsV1));
+
             OnPropertyChanged(nameof(IsHitboxV3));
             OnPropertyChanged(nameof(IsNotHitboxV3));
             OnPropertyChanged(nameof(HitboxV3Visibility));
@@ -503,10 +526,8 @@ namespace AnimationEditor.ViewModels
                                 AnimationData = new RSDK1.Animation(reader);
                                 break;
                             case 1:
-                                PathMod = "";
-                                AnimationData = new RSDK1.Animation(reader);
-                                /* PathMod = "..\\sprites";
-                                 AnimationData = new RSDK2.Animation(reader);*/
+                                 PathMod = "..\\sprites\\Sonic";
+                                 AnimationData = new RSDK2.Animation(reader);
                                 break;
                             case 2:
                                 PathMod = "..\\sprites";
