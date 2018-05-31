@@ -18,5 +18,7 @@ During 2012 I created a program to disassembly the bytecode used by RSDKv3. It i
 # NOTE:
 
 A freshly extracted sonic nexus data file is incompatible with this animation editor! 
+
 To Enable support for it download the program called "not_this" from the link below, when you open the animation file (or any file) with "not_this" it swaps all the bytes to their opposite (0 becomes 1 and 1 becomes 0), this is the "encryption" that many of the raw files in the extracted data folder including the animation file, this make it readable by this program
+
 http://unhaut.x10host.com/retrun/nexus.html
