@@ -67,39 +67,25 @@ namespace RSDK2
 
         public void Read(BinaryReader reader)
         {
-                // byte 1 - Number of image the frame is located in
-                // byte 2 - A flag mask of some kind
-                //		In Sonic 1 and Sonic 2, it has value 3 when crouching down, value 1 when jumping
-                //		In Sonic CD, it has value 1 for 3D Ramp 7, and value 2 for Size change,
-                //		and value 1 when jumping.
-                //		The bitmask most likely is composed by two bits.			
-                // byte 3 - X position in image of the frame
-                // byte 4 - Y position in image of the frame
-                // byte 5 - Width of frame
-                // byte 6 - Height of frame
-                // byte 7 - Hot spot horizontal displacement (signed)
-                // byte 8 - Hot spot vertical displacement (signed)				
-                SpriteSheet = reader.ReadByte();
-                int buf = reader.ReadByte();
-                flag1 = (buf & 1) > 0;
-                flag2 = (buf & 2) > 0;
-                X = reader.ReadByte();
-                Y = reader.ReadByte();
-                Width = reader.ReadByte();
-                Height = reader.ReadByte();
-                CenterX = reader.ReadSByte();
-                CenterY = reader.ReadSByte();
-                Id = 0;
-
-            /*SpriteSheet = reader.ReadByte();
-    CollisionBox = reader.ReadByte();
-    Id = 0;
-    X = reader.ReadByte();
-    Y = reader.ReadByte();
-    Width = reader.ReadByte();
-    Height = reader.ReadByte();
-    CenterX = reader.ReadSByte();
-    CenterY = reader.ReadSByte();*/
+            // byte 1 - Number of image the frame is located in
+            // byte 2 - UnKnown/Useless		
+            // byte 3 - X position in image of the frame
+            // byte 4 - Y position in image of the frame
+            // byte 5 - Width of frame
+            // byte 6 - Height of frame
+            // byte 7 - Hot spot horizontal displacement
+            // byte 8 - Hot spot vertical displacement
+            SpriteSheet = reader.ReadByte();
+            reader.ReadByte();
+            X = reader.ReadByte();
+            Y = reader.ReadByte();
+            Width = reader.ReadByte();
+            Height = reader.ReadByte();
+            CenterX = reader.ReadByte();
+            CenterY = reader.ReadByte();
+            flag1 = false; // UNKNOWN
+            flag2 = false; // UNKNOWN
+            Id = 0;
         }
 
         public void Write(BinaryWriter writer)

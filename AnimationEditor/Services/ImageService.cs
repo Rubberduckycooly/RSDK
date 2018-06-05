@@ -25,6 +25,7 @@
 // Please do not redistribuite this code under your own name, stole it or use
 // it artfully, but instead support it and its author. Thank you.
 
+using System;
 using System.IO;
 using System.Linq;
 using System.Windows.Media.Imaging;
@@ -43,8 +44,18 @@ namespace AnimationEditor.Services
             {
                 using (var fStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
+                    string ext = Path.GetExtension(fileName);
+                    if (ext == ".gif")
+                    {
                     var decoder = new GifBitmapDecoder(fStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                     return decoder.Frames.FirstOrDefault();
+                    }
+                    //I'll Get Back to the .bmp loader (for retro-sonic) later
+                    /*if (ext == ".bmp")
+                    {
+                        var decoder = new BitmapDecoder(fStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                        return decoder.Frames.FirstOrDefault();
+                    }*/
                 }
             }
             else

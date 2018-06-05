@@ -68,7 +68,7 @@ namespace RSDK1
             Loop = loopStart;
             Flag1 = flag1;
             Flag2 = flag2;
-            //FrameCount = framecount;
+            FrameCount = framecount;
             Read(reader);
         }
 
@@ -92,10 +92,6 @@ namespace RSDK1
 
         public void Read(BinaryReader reader)
         {
-            //Name = "Retro-Sonic Animation";
-            Speed = reader.ReadByte();
-            Loop = reader.ReadByte();
-            Flags = reader.ReadByte();
             for (int i = 0; i < FrameCount; i++)
             {
                 var frame = new Frame();

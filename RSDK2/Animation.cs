@@ -41,7 +41,7 @@ namespace RSDK2
         public IEnumerable<string> HitboxTypes => null;
 
         public Animation(BinaryReader reader)
-        {		
+        {
 
             reader.ReadByte(); //skip this byte, as i'm unsure what its for... 
             reader.ReadByte(); //skip this byte, as i'm unsure what its for...
@@ -49,8 +49,7 @@ namespace RSDK2
             reader.ReadByte(); //skip this byte, as i'm unsure what its for...
             reader.ReadByte(); //skip this byte, as i'm unsure what its for...
             //those bytes seem to be useless
-            int spriteSheetsCount = 3; //reader.ReadByte();
-            var animationsCount = 1;//reader.ReadByte();
+            int spriteSheetsCount = 3;
 
             SpriteSheets = new List<string>(spriteSheetsCount);
 
@@ -70,50 +69,25 @@ namespace RSDK2
             }
             byteBuf = null;
 
-            // Read number of animations		
+            reader.ReadByte(); //skip this byte, it seems to be useless
+            // Read number of animations
+            var animationsCount = reader.ReadByte();
+
             Animations = new List<AnimationEntry>(animationsCount);
 
-            Animations.Add(new AnimationEntry("Sonic-Nexus Test Animation", 0, 0,
-            0, false, false, reader));
+            for (int i = 0; i < animationsCount; i++)
+            {
+                // Read number of frames
+                int frameCount = reader.ReadByte();
+                // Read speed
+                int animationSpeed = reader.ReadByte();
+                // Read loop start
+                int loopFrom = reader.ReadByte();
 
-        }
-        /*// Read number of animations		
-Animations = new List<AnimationEntry>(animationsCount);
-
-for (int i = 0; i < animationsCount; i++)
-{// read frame count	
-    int frameCount = reader.ReadByte();
-    Console.WriteLine(frameCount);
-
-    int animationSpeed = reader.ReadByte();
-    animationSpeed = animationSpeed * 4;
-    int loopFrom = reader.ReadByte();
-    loopFrom = loopFrom + 1;
-
-    int buf = reader.ReadByte();
-
-    bool flag1 = (buf & 1) > 0;
-    bool flag2 = (buf & 2) > 0;
-
-    // Length of animation data - 4 bytes + (8 bytes * number_of_frames)
-
-    // In the 4 bytes:
-    // byte 1 - Number of frames
-    // byte 2 - Animation speed
-    // byte 3 - Frame to start looping from, when looping
-    // byte 4 - A flag of some kind
-    //		In Sonic 1, Sonic 2 and Sonic CD, it has value 3 for walking & running animations
-    //		Coincidentally, for those animations, the frames for the first half of the 
-    //		animation have the  normal graphics, while the second half 
-    //		has the rotated sprites
-    //		(that are displayed when going up a loop or a slope)
-    //		In Sonic 2, for Twirl H it has value 2
-
-    //Animations.Add(new AnimationEntry(("Sonic-Nexus Animation #" + (i+1)), frameCount, animationSpeed,
-        //loopFrom, flag1, flag2, reader));
-
-
-    }*/
+                Animations.Add(new AnimationEntry(("Sonic-Nexus Animation #" + (i + 1)), frameCount, animationSpeed,
+                    loopFrom, false, false, reader));
+            }
+    }
         public void Factory(out IAnimationEntry o) { o = new AnimationEntry(); }
         public void Factory(out IFrame o) { o = new Frame(); }
         public void Factory(out IHitboxEntry o) { o = new HitboxEntry(); }

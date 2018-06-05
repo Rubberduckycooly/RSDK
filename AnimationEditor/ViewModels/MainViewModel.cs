@@ -11,7 +11,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace AnimationEditor.ViewModels
-{
+{ 
     public class MainViewModel : Xe.Tools.Wpf.BaseNotifyPropertyChanged
     {
         private class DummyHitbox : IHitbox

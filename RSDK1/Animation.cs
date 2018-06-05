@@ -45,8 +45,14 @@ namespace RSDK1
             // Read number of image paths		
 
             reader.ReadByte(); //skip this byte, as i'm unsure what its for...
-            int spriteSheetsCount = 3; reader.ReadByte();
+            reader.ReadByte(); //Again, Useless
+            int spriteSheetsCount = 3; 
             var animationsCount = reader.ReadByte();
+
+            /*var collisionBoxesCount = 0;
+            Hitboxes = new List<HitboxEntry>(collisionBoxesCount);
+            while (collisionBoxesCount-- > 0)
+                Hitboxes.Add(new HitboxEntry(reader));*/
 
             SpriteSheets = new List<string>(spriteSheetsCount);
 
@@ -65,26 +71,19 @@ namespace RSDK1
                 Console.WriteLine(result);
             }
             byteBuf = null;
-            //while (spriteSheetsCount-- > 0)
-            //SpriteSheets.Add(StringEncoding.GetString(reader));
 
             // Read number of animations		
             Animations = new List<AnimationEntry>(animationsCount);
 
             for (int i = 0; i < animationsCount; i++)
-            {// read frame count	
+            {
+                // read frame count	
                 int frameCount = reader.ReadByte();
                 Console.WriteLine(frameCount);
-                		
-                int animationSpeed = reader.ReadByte();
-                animationSpeed = animationSpeed * 4;
+                //read speed
+                int animationSpeed = reader.ReadByte() * 4;
+                //read Loop Index
                 int loopFrom = reader.ReadByte();
-                loopFrom = loopFrom + 1;
-
-                int buf = reader.ReadByte();
-
-                bool flag1 = (buf & 1) > 0;
-                bool flag2 = (buf & 2) > 0;
 
                 // Length of animation data - 4 bytes + (8 bytes * number_of_frames)
 
@@ -101,7 +100,7 @@ namespace RSDK1
                 //		In Sonic 2, for Twirl H it has value 2
 
                 Animations.Add(new AnimationEntry(("Retro-Sonic Animation #" + (i+1)), frameCount, animationSpeed,
-                    loopFrom, flag1, flag2, reader));
+                    loopFrom, false, false, reader));
 
 
                 }

@@ -67,39 +67,30 @@ namespace RSDK1
 
         public void Read(BinaryReader reader)
         {
-                // byte 1 - Number of image the frame is located in
-                // byte 2 - A flag mask of some kind
-                //		In Sonic 1 and Sonic 2, it has value 3 when crouching down, value 1 when jumping
-                //		In Sonic CD, it has value 1 for 3D Ramp 7, and value 2 for Size change,
-                //		and value 1 when jumping.
-                //		The bitmask most likely is composed by two bits.			
-                // byte 3 - X position in image of the frame
-                // byte 4 - Y position in image of the frame
-                // byte 5 - Width of frame
-                // byte 6 - Height of frame
-                // byte 7 - Hot spot horizontal displacement (signed)
-                // byte 8 - Hot spot vertical displacement (signed)				
-                SpriteSheet = reader.ReadByte();
-                int buf = reader.ReadByte();
-                flag1 = (buf & 1) > 0;
-                flag2 = (buf & 2) > 0;
-                X = reader.ReadByte();
-                Y = reader.ReadByte();
-                Width = reader.ReadByte();
-                Height = reader.ReadByte();
-                CenterX = reader.ReadSByte();
-                CenterY = reader.ReadSByte();
-                Id = 0;
+            // byte 1 - Image's X Position
+            // byte 2 - Image's Y Position		
+            // byte 3 - Width
+            // byte 4 - Height
+            // byte 5 - Image Number			
+            X = reader.ReadByte();
+            Y = reader.ReadByte();
+            Width = reader.ReadByte();
+            Height = reader.ReadByte();
+            SpriteSheet = reader.ReadByte();
+            flag1 = false; // UNKNOWN
+            flag2 = false; // UNKNOWN
+            Id = 0;
 
-            /*SpriteSheet = reader.ReadByte();
-    CollisionBox = reader.ReadByte();
-    Id = 0;
-    X = reader.ReadByte();
-    Y = reader.ReadByte();
-    Width = reader.ReadByte();
-    Height = reader.ReadByte();
-    CenterX = reader.ReadSByte();
-    CenterY = reader.ReadSByte();*/
+            int[] v = new int[6];
+
+            // the meaning of v[0] and v[1] is currently unknown
+
+            for (int k = 0; k < 6; k++)
+            { v[k] = reader.ReadByte(); }
+
+            // Compute hotspot displacements
+            CenterX = v[2] - v[4];
+            CenterY = v[3] - v[5];
         }
 
         public void Write(BinaryWriter writer)
