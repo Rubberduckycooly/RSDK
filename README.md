@@ -30,6 +30,5 @@ During 2012 I created a program to disassembly the bytecode used by RSDKv3. It i
 http://unhaut.x10host.com/retrun/nexus.html
 
 # Thanks:
-Xeeynamo - For making the Sonic Mania Animation Editor and RSDKv3 and RSDKv5 Loading Functions
-
+Xeeynamo - For making the Sonic Mania Animation Editor and RSDKv3 and RSDKv5 Libaries
 Nextvolume/tails92 - For Making TaxAni, which I used as a guide for RSDKv1 and RSDKv2
