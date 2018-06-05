@@ -43,13 +43,6 @@ namespace RSDK2
 
         private bool Flag2;
 
-        //private int animNo = 1;
-
-        //	private byte[] debugData;
-
-        //	private byte[][] debugData2;
-
-
         public int Flags { get; set; }
 
         public AnimationEntry()
@@ -102,11 +95,9 @@ namespace RSDK2
 
         public void Write(BinaryWriter writer)
         {
-            //writer.Write(StringEncoding.GetBytes(Name));
             writer.Write((byte)Frames.Count);
             writer.Write((byte)Speed);
             writer.Write((byte)Loop);
-            writer.Write((byte)Flags);
             foreach (var entry in Frames)
                 entry.Write(writer);
         }

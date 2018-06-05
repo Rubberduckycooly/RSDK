@@ -81,8 +81,8 @@ namespace RSDK2
             Y = reader.ReadByte();
             Width = reader.ReadByte();
             Height = reader.ReadByte();
-            CenterX = reader.ReadByte();
-            CenterY = reader.ReadByte();
+            CenterX = reader.ReadSByte();
+            CenterY = reader.ReadSByte();
             flag1 = false; // UNKNOWN
             flag2 = false; // UNKNOWN
             Id = 0;
@@ -91,7 +91,7 @@ namespace RSDK2
         public void Write(BinaryWriter writer)
         {
             writer.Write((byte)SpriteSheet);
-            writer.Write((byte)CollisionBox);
+            writer.Write((byte)0);
             writer.Write((byte)X);
             writer.Write((byte)Y);
             writer.Write((byte)Width);

@@ -85,19 +85,12 @@ namespace RSDK1
                 //read Loop Index
                 int loopFrom = reader.ReadByte();
 
-                // Length of animation data - 4 bytes + (8 bytes * number_of_frames)
+                // Length of animation data - 3 bytes + (8 bytes * number_of_frames)
 
-                // In the 4 bytes:
+                // In the 3 bytes:
                 // byte 1 - Number of frames
                 // byte 2 - Animation speed
                 // byte 3 - Frame to start looping from, when looping
-                // byte 4 - A flag of some kind
-                //		In Sonic 1, Sonic 2 and Sonic CD, it has value 3 for walking & running animations
-                //		Coincidentally, for those animations, the frames for the first half of the 
-                //		animation have the  normal graphics, while the second half 
-                //		has the rotated sprites
-                //		(that are displayed when going up a loop or a slope)
-                //		In Sonic 2, for Twirl H it has value 2
 
                 Animations.Add(new AnimationEntry(("Retro-Sonic Animation #" + (i+1)), frameCount, animationSpeed,
                     loopFrom, false, false, reader));
@@ -125,42 +118,37 @@ namespace RSDK1
 
         public IEnumerable<IHitboxEntry> GetHitboxes()
         {
-            return Hitboxes.Select(x => (IHitboxEntry)x);
+            //return Hitboxes.Select(x => (IHitboxEntry)x);
+            return null;
         }
 
         public void SetHitboxes(IEnumerable<IHitboxEntry> hitboxes)
-        {
-            Hitboxes.Clear();
+        {           
+            /*Hitboxes.Clear();
             Hitboxes.AddRange(hitboxes
                 .Select(x => x as HitboxEntry)
-                .Where(x => x != null));
+                .Where(x => x != null));*/
         }
         public void SetHitboxTypes(IEnumerable<string> hitboxTypes)
         { }
 
-
         public void SaveChanges(BinaryWriter writer)
         {
+            writer.Write((byte)0); //TODO: Use this for spriteSheetsCount later...
+            writer.Write((byte)0);
+            var animationsCount = (byte)Math.Min(Animations.Count, byte.MaxValue);
+            writer.Write(animationsCount);
+
             var spriteSheetsCount = (byte)Math.Min(SpriteSheets.Count, byte.MaxValue);
-            writer.Write(spriteSheetsCount);
             for (int i = 0; i < spriteSheetsCount; i++)
             {
                 var item = SpriteSheets[i];
                 writer.Write(StringEncoding.GetBytes(item));
             }
 
-            var animationsCount = (byte)Math.Min(Animations.Count, byte.MaxValue);
-            writer.Write(animationsCount);
             for (int i = 0; i < animationsCount; i++)
             {
                 Animations[i].SaveChanges(writer);
-            }
-
-            var collisionBoxesCount = (byte)Math.Min(Hitboxes.Count, byte.MaxValue);
-            writer.Write(collisionBoxesCount);
-            for (int i = 0; i < collisionBoxesCount; i++)
-            {
-                Hitboxes[i].SaveChanges(writer);
             }
         }
     }

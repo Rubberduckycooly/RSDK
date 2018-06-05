@@ -95,14 +95,19 @@ namespace RSDK1
 
         public void Write(BinaryWriter writer)
         {
-            writer.Write((byte)SpriteSheet);
-            writer.Write((byte)CollisionBox);
             writer.Write((byte)X);
             writer.Write((byte)Y);
             writer.Write((byte)Width);
             writer.Write((byte)Height);
-            writer.Write((byte)CenterX);
-            writer.Write((byte)CenterY);
+            writer.Write((byte)SpriteSheet);
+            writer.Write((byte)0); //Unknown
+            writer.Write((byte)0); //Unknown
+            //I have no idea how to save the "Pivot" since it is read as a group of 4 values that are 
+            //subtracted from each other... and i have no idea what that calculation is...
+            writer.Write((byte)0);
+            writer.Write((byte)0);
+            writer.Write((byte)0);
+            writer.Write((byte)0);
         }
 
         public object Clone()

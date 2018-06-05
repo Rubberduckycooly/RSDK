@@ -102,11 +102,10 @@ namespace RSDK1
 
         public void Write(BinaryWriter writer)
         {
-            //writer.Write(StringEncoding.GetBytes(Name));
             writer.Write((byte)Frames.Count);
-            writer.Write((byte)Speed);
+            int ASp = Speed / 4;
+            writer.Write((byte)ASp);
             writer.Write((byte)Loop);
-            writer.Write((byte)Flags);
             foreach (var entry in Frames)
                 entry.Write(writer);
         }

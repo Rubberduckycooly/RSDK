@@ -42,14 +42,9 @@ namespace RSDK2
 
         public Animation(BinaryReader reader)
         {
+            reader.ReadBytes(5); //skip these bytes, as they seem to be useless/unused...
 
-            reader.ReadByte(); //skip this byte, as i'm unsure what its for... 
-            reader.ReadByte(); //skip this byte, as i'm unsure what its for...
-            reader.ReadByte(); //skip this byte, as i'm unsure what its for...
-            reader.ReadByte(); //skip this byte, as i'm unsure what its for...
-            reader.ReadByte(); //skip this byte, as i'm unsure what its for...
-            //those bytes seem to be useless
-            int spriteSheetsCount = 3;
+            int spriteSheetsCount = 3; //always 3
 
             SpriteSheets = new List<string>(spriteSheetsCount);
 
@@ -107,15 +102,15 @@ namespace RSDK2
 
         public IEnumerable<IHitboxEntry> GetHitboxes()
         {
-            return Hitboxes.Select(x => (IHitboxEntry)x);
+            return null;
         }
 
         public void SetHitboxes(IEnumerable<IHitboxEntry> hitboxes)
         {
-            Hitboxes.Clear();
+            /*Hitboxes.Clear();
             Hitboxes.AddRange(hitboxes
                 .Select(x => x as HitboxEntry)
-                .Where(x => x != null));
+                .Where(x => x != null));*/
         }
         public void SetHitboxTypes(IEnumerable<string> hitboxTypes)
         { }
@@ -123,26 +118,28 @@ namespace RSDK2
 
         public void SaveChanges(BinaryWriter writer)
         {
+            writer.Write((byte)0);
+            writer.Write((byte)0);
+            writer.Write((byte)0);
+            writer.Write((byte)0);
+            writer.Write((byte)0);
+
             var spriteSheetsCount = (byte)Math.Min(SpriteSheets.Count, byte.MaxValue);
-            writer.Write(spriteSheetsCount);
+
             for (int i = 0; i < spriteSheetsCount; i++)
             {
                 var item = SpriteSheets[i];
                 writer.Write(StringEncoding.GetBytes(item));
             }
 
+            writer.Write((byte)0); //"skip" this byte, it seems to be useless
+
             var animationsCount = (byte)Math.Min(Animations.Count, byte.MaxValue);
             writer.Write(animationsCount);
+
             for (int i = 0; i < animationsCount; i++)
             {
                 Animations[i].SaveChanges(writer);
-            }
-
-            var collisionBoxesCount = (byte)Math.Min(Hitboxes.Count, byte.MaxValue);
-            writer.Write(collisionBoxesCount);
-            for (int i = 0; i < collisionBoxesCount; i++)
-            {
-                Hitboxes[i].SaveChanges(writer);
             }
         }
     }

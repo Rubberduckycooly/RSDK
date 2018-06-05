@@ -23,7 +23,7 @@ namespace AnimationEditor
         private void MenuFileOpen_Click(object sender, RoutedEventArgs e)
         {
             var fd = new OpenFileDialog();
-            fd.DefaultExt = "*.bin";
+            fd.DefaultExt = "*.ani";
             fd.Filter = "RSDKv1 Animation Files|*.ani|RSDKv2 Animation Files|*.ani|RSDKv3 and RSDKv4 Animation Files|*.ani|RSDKv5 Animation Files|*.bin";
             if (fd.ShowDialog() == true)
             {
@@ -39,7 +39,7 @@ namespace AnimationEditor
         private void MenuFileSaveAs_Click(object sender, RoutedEventArgs e)
         {
             var fd = new SaveFileDialog();
-            fd.DefaultExt = "*.bin";
+            fd.DefaultExt = "*.ani";
             fd.Filter = "RSDKv1 Animation Files|*.ani|RSDKv2 Animation Files|*.ani|RSDKv3 and RSDKv4 Animation Files|*.ani|RSDKv5 Animation Files|*.bin";
             if (fd.ShowDialog() == true)
             {
