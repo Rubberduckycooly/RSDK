@@ -18,7 +18,7 @@
                     </StackPanel>
                 </Button.ToolTip>
             </Button>
-            <Button DockPanel.Dock="Right" Click="ButtonAdd_Click">
+            <Button x:Name="ButtonAdd" DockPanel.Dock="Right" Click="ButtonAdd_Click">
                 <Image Width="16" Source="{StaticResource Add_16x}"/>
                 <Button.ToolTip>
                     <StackPanel>

@@ -1,5 +1,6 @@
 ﻿using AnimationEditor.ViewModels;
 using Microsoft.Win32;
+using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
@@ -27,7 +28,15 @@ namespace AnimationEditor
             fd.Filter = "RSDKv1 Animation Files|*.ani|RSDKv2 Animation Files|*.ani|RSDKv3 and RSDKv4 Animation Files|*.ani|RSDKv5 Animation Files|*.bin";
             if (fd.ShowDialog() == true)
             {
-                ViewModel.FileOpen(fd.FileName,fd.FilterIndex -1);
+                //Flags are unknown for RSDKv1 and RSDKv2, so don't let users change them (for safety)
+                if (fd.FilterIndex - 1 < 2) { FlagsSelector.IsEnabled = false; MenuViewHitbox.IsEnabled = false; HitBoxComboBox.IsEnabled = false; HitBoxComboBox2.IsEnabled = false; }
+                if (fd.FilterIndex - 1 >= 2) { FlagsSelector.IsEnabled = true; MenuViewHitbox.IsEnabled = true; HitBoxComboBox.IsEnabled = true; HitBoxComboBox2.IsEnabled = true; }
+
+                //For RSDKv1, RSDKv2 and RSDKv3 there is no ID and the Delay is always 256, so there is no point to let users change their values
+                if (fd.FilterIndex - 1 < 3) { DelayNUD.IsEnabled = false; idNUD.IsEnabled = false; }
+                if (fd.FilterIndex - 1 >= 3) { DelayNUD.IsEnabled = true; idNUD.IsEnabled = true; }
+                    ViewModel.FileOpen(fd.FileName,fd.FilterIndex -1);
+                
             }
         }
 
@@ -73,6 +82,12 @@ namespace AnimationEditor
             Xe.Tools.Wpf.Dialogs.FileDialog.Type fileType;
             switch (version)
             {
+                case 1:
+                    fileType = Xe.Tools.Wpf.Dialogs.FileDialog.Type.Rsdk1Animation;
+                    break;
+                case 2:
+                    fileType = Xe.Tools.Wpf.Dialogs.FileDialog.Type.Rsdk2Animation;
+                    break;
                 case 3:
                     fileType = Xe.Tools.Wpf.Dialogs.FileDialog.Type.Rsdk3Animation;
                     break;
@@ -98,6 +113,12 @@ namespace AnimationEditor
             Xe.Tools.Wpf.Dialogs.FileDialog.Type fileType;
             switch (version)
             {
+                case 1:
+                    fileType = Xe.Tools.Wpf.Dialogs.FileDialog.Type.Rsdk1Animation;
+                    break;
+                case 2:
+                    fileType = Xe.Tools.Wpf.Dialogs.FileDialog.Type.Rsdk2Animation;
+                    break;
                 case 3:
                     fileType = Xe.Tools.Wpf.Dialogs.FileDialog.Type.Rsdk3Animation;
                     break;
@@ -138,6 +159,12 @@ namespace AnimationEditor
             Xe.Tools.Wpf.Dialogs.FileDialog.Type fileType;
             switch (version)
             {
+                case 1:
+                    fileType = Xe.Tools.Wpf.Dialogs.FileDialog.Type.Rsdk1Frame;
+                    break;
+                case 2:
+                    fileType = Xe.Tools.Wpf.Dialogs.FileDialog.Type.Rsdk2Frame;
+                    break;
                 case 3:
                     fileType = Xe.Tools.Wpf.Dialogs.FileDialog.Type.Rsdk3Frame;
                     break;
@@ -163,6 +190,12 @@ namespace AnimationEditor
             Xe.Tools.Wpf.Dialogs.FileDialog.Type fileType;
             switch (version)
             {
+                case 1:
+                    fileType = Xe.Tools.Wpf.Dialogs.FileDialog.Type.Rsdk1Frame;
+                    break;
+                case 2:
+                    fileType = Xe.Tools.Wpf.Dialogs.FileDialog.Type.Rsdk2Frame;
+                    break;
                 case 3:
                     fileType = Xe.Tools.Wpf.Dialogs.FileDialog.Type.Rsdk3Frame;
                     break;
@@ -247,5 +280,11 @@ namespace AnimationEditor
         {
             new AboutWindow().Show();
         }
+
+        private void FramesList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            //Frame Index Changing Goes Here
+        }
+
     }
 }

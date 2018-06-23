@@ -27,6 +27,17 @@ namespace AnimationEditor
             InitializeComponent();
             MainViewModel = mainViewModel;
             DataContext = new TextureWindowViewModel(mainViewModel, BasePath);
+            //Check if Anim Version is for Retro Sonic, if so dont let the user change the amount of spritesheets, since there is always a hardcoded amount
+            if (mainViewModel.LoadedAnimVer == 1)
+            {
+                ButtonRemove.IsEnabled = false;
+                ButtonAdd.IsEnabled = false;
+            }
+            else if (mainViewModel.LoadedAnimVer >= 2)
+            {
+                ButtonRemove.IsEnabled = true;
+                ButtonAdd.IsEnabled = true;
+            }
         }
 
         public TextureWindow(MainViewModel mainViewModel, string basePath)
@@ -35,33 +46,79 @@ namespace AnimationEditor
             BasePath = basePath;
             MainViewModel = mainViewModel;
             DataContext = new TextureWindowViewModel(mainViewModel, BasePath);
+            //Check if Anim Version is for Retro Sonic, if so dont let the user change the amount of spritesheets, since there is always a hardcoded amount
+            if (mainViewModel.LoadedAnimVer == 1)
+            {
+                ButtonRemove.IsEnabled = false;
+                ButtonAdd.IsEnabled = false;
+            }
+            else if (mainViewModel.LoadedAnimVer >= 2)
+            {
+                ButtonRemove.IsEnabled = true;
+                ButtonAdd.IsEnabled = true;
+            }
         }
 
         private void ButtonChange_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = FileDialog.Factory(this, FileDialog.Behavior.Open, FileDialog.Type.ImageGif);
-            if (dialog.ShowDialog() == true)
+            //Check if Anim Version is for Retro Sonic, if so change the filter to only allow Bitmap Images
+            Console.WriteLine(MainViewModel.LoadedAnimVer);
+            if (MainViewModel.LoadedAnimVer == 1)
             {
-                var fileName = AddTextureToDirectory(dialog.FileName);
-                if (fileName != null)
+                var dialog = FileDialog.Factory(this, FileDialog.Behavior.Open, FileDialog.Type.ImageBmp);
+                if (dialog.ShowDialog() == true)
                 {
-                    var index = SelectedIndex;
-                    ViewModel.ReplaceTexture(SelectedIndex, fileName);
-                    SelectedIndex = index;
+                    var fileName = AddTextureToDirectory(dialog.FileName);
+                    if (fileName != null)
+                    {
+                        var index = SelectedIndex;
+                        ViewModel.ReplaceTexture(SelectedIndex, fileName);
+                        SelectedIndex = index;
+                    }
+                }
+            }
+            else if (MainViewModel.LoadedAnimVer > 1)
+            {
+                var dialog = FileDialog.Factory(this, FileDialog.Behavior.Open, FileDialog.Type.ImageGif);
+                if (dialog.ShowDialog() == true)
+                {
+                    var fileName = AddTextureToDirectory(dialog.FileName);
+                    if (fileName != null)
+                    {
+                        var index = SelectedIndex;
+                        ViewModel.ReplaceTexture(SelectedIndex, fileName);
+                        SelectedIndex = index;
+                    }
                 }
             }
         }
 
         private void ButtonAdd_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = FileDialog.Factory(this, FileDialog.Behavior.Open, FileDialog.Type.ImageGif);
-            if (dialog.ShowDialog() == true)
+            if (MainViewModel.LoadedAnimVer == 1)
             {
-                var fileName = AddTextureToDirectory(dialog.FileName);
-                if (fileName != null)
+                var dialog = FileDialog.Factory(this, FileDialog.Behavior.Open, FileDialog.Type.ImageBmp);
+                if (dialog.ShowDialog() == true)
                 {
-                    ViewModel.AddTexture(fileName);
-                    SelectedIndex = ViewModel.Count - 1;
+                    var fileName = AddTextureToDirectory(dialog.FileName);
+                    if (fileName != null)
+                    {
+                        ViewModel.AddTexture(fileName);
+                        SelectedIndex = ViewModel.Count - 1;
+                    }
+                }
+            }
+            else if (MainViewModel.LoadedAnimVer > 1)
+            {
+                var dialog = FileDialog.Factory(this, FileDialog.Behavior.Open, FileDialog.Type.ImageGif);
+                if (dialog.ShowDialog() == true)
+                {
+                    var fileName = AddTextureToDirectory(dialog.FileName);
+                    if (fileName != null)
+                    {
+                        ViewModel.AddTexture(fileName);
+                        SelectedIndex = ViewModel.Count - 1;
+                    }
                 }
             }
         }

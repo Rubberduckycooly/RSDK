@@ -42,6 +42,8 @@ namespace AnimationEditor.ViewModels
             { }
         }
 
+        public int LoadedAnimVer = 5;
+
         private string _fileName;
         private IAnimation _animationData;
         private IAnimationEntry _selectedAnimation;
@@ -542,18 +544,22 @@ namespace AnimationEditor.ViewModels
                         {
                             case 0:
                                 PathMod = "";
+                                LoadedAnimVer = 1;
                                 AnimationData = new RSDK1.Animation(reader, isRSDC);
                                 break;
                             case 1:
                                  PathMod = "..\\sprites\\Sonic";
-                                 AnimationData = new RSDK2.Animation(reader);
+                                LoadedAnimVer = 2;
+                                AnimationData = new RSDK2.Animation(reader);
                                 break;
                             case 2:
                                 PathMod = "..\\sprites";
+                                LoadedAnimVer = 3;
                                 AnimationData = new RSDK3.Animation(reader);
                                 break;
                             case 3:
                                 PathMod = "..";
+                                LoadedAnimVer = 5;
                                 AnimationData = new RSDK5.Animation(reader);
                                 return false;
                             default:

@@ -42,10 +42,8 @@ namespace RSDK1
 
         public Animation(BinaryReader reader, bool RSDC)
         {
-            // Read number of image paths		
-
             reader.ReadByte(); //skip this byte, as it seems unused
-            reader.ReadByte(); //Again, unused
+            reader.ReadByte(); //Again, unused. As a note however; It is ) for sonic, 1 for tails & 2 for Knux, so maybe it specifies a player value?
             int spriteSheetsCount = 3;
             if (RSDC) //The Dreamcast Demo of retro-sonic only had 2 spritesheets per animation...
             {
@@ -87,7 +85,6 @@ namespace RSDK1
 
                 // read frame count	
                 int frameCount = reader.ReadByte();
-                Console.WriteLine(frameCount);
                 //read Animation Speed
                 int animationSpeed = reader.ReadByte() * 4;
                 //read Loop Index

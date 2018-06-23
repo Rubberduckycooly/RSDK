@@ -50,12 +50,18 @@ namespace AnimationEditor.Services
                     var decoder = new GifBitmapDecoder(fStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                     return decoder.Frames.FirstOrDefault();
                     }
-                    //I'll Get Back to the .bmp loader (for retro-sonic) later
-                    /*if (ext == ".bmp")
+
+                    if (ext == ".bmp")
                     {
-                        var decoder = new BitmapDecoder(fStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                        var decoder = BitmapDecoder.Create(fStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                         return decoder.Frames.FirstOrDefault();
-                    }*/
+                    }
+
+                    if (ext == ".png") //because why not?
+                    {
+                        var decoder = new PngBitmapDecoder(fStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                        return decoder.Frames.FirstOrDefault();
+                    }
                 }
             }
             else
