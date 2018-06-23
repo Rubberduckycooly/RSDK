@@ -5,10 +5,11 @@
 This is a repository where I am hosting tools and reverse engineering notes from RSDK (Retro-SDK) development kit developed by Christian Whitehead.
 
 RSDK has 5 versions:
-* RSDKv1: Retro Sonic
-* RSDKv2: Sonic Nexus
-* RSDKv3: Sonic CD (2011)
-* RSDKv4/RSDKvB: Sonic the Hedgehog 1 and Sonic the Hedgehog 2 remakes
+* RSDKvRS: Retro Sonic
+* RSDKv1: Sonic Nexus
+* RSDKv2: Sonic CD (2011)
+* RSDKvB: Sonic the Hedgehog 1 and Sonic the Hedgehog 2 remakes
+* RSDKv4: Sonic 3K (unreleased)
 * RSDKv5: Sonic Mania
 
 The repository supports the Animation Systems of all 5 versions of the RSDK. The tool used to view and edit the animation of those versions is called RSDK Animation Editor.
