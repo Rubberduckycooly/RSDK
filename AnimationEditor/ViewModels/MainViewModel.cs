@@ -519,11 +519,30 @@ namespace AnimationEditor.ViewModels
                     using (var reader = new BinaryReader(fStream))
                     {
                         FileName = fileName;
+
+                        //Lazy way to check .ani filetype
+                        var tmpStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+                        BinaryReader br = new BinaryReader(tmpStream);
+                        br.ReadByte();
+                        int TypeCheck2 = br.ReadByte();
+                        int TypeCheck = br.ReadByte();
+                        bool isRSDC = false;
+
+                        //All Animation Types Show up when any RSDK version except 5 is selected, so this is a check to make sure that
+                        //the program loads the right file type
+                        if (fi < 3)
+                        {
+                        if (TypeCheck == 0) { fi = 1; }
+                        if (TypeCheck2 > 0) { fi = 2; }
+                        if (TypeCheck == 30 && TypeCheck2 >= 0) { fi = 0; isRSDC = true; }
+                        else if (TypeCheck > 0 && TypeCheck2 > 0 && TypeCheck != 30) { fi = 0; }
+                        }
+
                         switch (fi)
                         {
                             case 0:
                                 PathMod = "";
-                                AnimationData = new RSDK1.Animation(reader);
+                                AnimationData = new RSDK1.Animation(reader, isRSDC);
                                 break;
                             case 1:
                                  PathMod = "..\\sprites\\Sonic";
