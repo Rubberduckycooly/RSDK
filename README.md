@@ -18,11 +18,9 @@ The repository supports the Animation Systems of all 5 versions of the RSDK. The
 
 During 2012 I created a program to disassemble the bytecode used by RSDKv3. It is old, buggy and released only because it was directly requested. It is no longer maintained and I am uploading it for research purpose only.
 
-# RubberDuckyCooly's ReadME Section
+# Rubberduckycooly's ReadME Section
 
 # NOTES:
-
-- At the moment the program doesn't load the .bmp files used by retro sonic animation files. A workaround for this is just to open the file in gimp (since programs like paint.net and MSpaint modify the pallete indexes when saving) and saving it as .gif!
 
 - A freshly extracted sonic nexus data file is incompatible with this animation editor! To Enable support for it download the program called "not_this" from the link below, when you open the animation file (or any file) with "not_this" it swaps all the bytes to their opposite (0 becomes 1 and 1 becomes 0), this is the "encryption" that many of the raw files in the extracted data folder including the animation file, this make it readable by this program.
 
