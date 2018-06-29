@@ -39,10 +39,6 @@ namespace RSDK2
 
         public int Loop { get; set; }
 
-        private bool Flag1;
-
-        private bool Flag2;
-
         public int Flags { get; set; }
 
         public AnimationEntry()
@@ -54,13 +50,12 @@ namespace RSDK2
             Read(reader);
         }
 
-        public AnimationEntry(string name, int framecount, int speed, int loopStart, bool flag1, bool flag2, BinaryReader reader)
+        public AnimationEntry(string name, int framecount, int speed, int loopStart, int flags, BinaryReader reader)
         {
             Name = name;
             Speed = speed;
             Loop = loopStart;
-            Flag1 = flag1;
-            Flag2 = flag2;
+            Flags = flags;
             FrameCount = framecount;
             Read(reader);
         }

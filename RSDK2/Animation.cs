@@ -80,9 +80,13 @@ namespace RSDK2
                 int loopFrom = reader.ReadByte();
 
                 Animations.Add(new AnimationEntry(("Sonic-Nexus Animation #" + (i + 1)), frameCount, animationSpeed,
-                    loopFrom, false, false, reader));
+                    loopFrom, 0, reader));
             }
-    }
+                var collisionBoxesCount = reader.ReadByte();
+                Hitboxes = new List<HitboxEntry>(collisionBoxesCount);
+                while (collisionBoxesCount-- > 0)
+                    Hitboxes.Add(new HitboxEntry(reader));
+        }
         public void Factory(out IAnimationEntry o) { o = new AnimationEntry(); }
         public void Factory(out IFrame o) { o = new Frame(); }
         public void Factory(out IHitboxEntry o) { o = new HitboxEntry(); }
@@ -102,15 +106,15 @@ namespace RSDK2
 
         public IEnumerable<IHitboxEntry> GetHitboxes()
         {
-            return null;
+            return Hitboxes.Select(x => (IHitboxEntry)x);
         }
 
         public void SetHitboxes(IEnumerable<IHitboxEntry> hitboxes)
         {
-            /*Hitboxes.Clear();
+            Hitboxes.Clear();
             Hitboxes.AddRange(hitboxes
                 .Select(x => x as HitboxEntry)
-                .Where(x => x != null));*/
+                .Where(x => x != null));
         }
         public void SetHitboxTypes(IEnumerable<string> hitboxTypes)
         { }
@@ -140,6 +144,13 @@ namespace RSDK2
             for (int i = 0; i < animationsCount; i++)
             {
                 Animations[i].SaveChanges(writer);
+            }
+
+            var collisionBoxesCount = (byte)Math.Min(Hitboxes.Count, byte.MaxValue);
+            writer.Write(collisionBoxesCount);
+            for (int i = 0; i < collisionBoxesCount; i++)
+            {
+                Hitboxes[i].SaveChanges(writer);
             }
         }
     }
