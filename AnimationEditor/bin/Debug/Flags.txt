@@ -1,0 +1,18 @@
+Animation Flag Notes:
+
+Default Behaviour: No Rotation
+
+Full Engine Rotation: Once the detected angle is high enough (about 45 degrees), Rotate the player based on the angle of the ground they are on (360 Degrees)
+
+45 Degree Engine Rotation: Once the detected angle is high enough (about 45 degrees), Rotate the player based on the angle of the ground they are on BUT only if its a multiple of 45 degrees
+
+Static Rotation Using Extra Frames: Once the detected angle is high enough (about 45 degrees), Rotate the player based on the angle of the ground they are 
+on using the extra frames (look at sonic CD/ Sonic 1/ Sonic 2 animations to see what I mean)
+
+1/2 Engine Rotation (Unknown): Flips the player when detected angle is above 90 degrees & below 270 degrees
+
+90 Degree Engine Rotation: Once the detected angle is high enough (about 45 degrees), Rotate the player based on the angle of the ground they are on BUT only if its a multiple of 90 degrees
+
+135/225 degree Rotation: Rotates the sprite about 135 degrees when going left and about 225 degrees when going right, probably ment for one specific object
+
+Just 135 degree Rotation: Same as "135/225 degree Rotation" but doesnt flip the player when going left, so the player is always rotated at an angle of 135 degrees

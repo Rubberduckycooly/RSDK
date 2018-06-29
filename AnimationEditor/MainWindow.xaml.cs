@@ -24,17 +24,22 @@ namespace AnimationEditor
         private void MenuFileOpen_Click(object sender, RoutedEventArgs e)
         {
             var fd = new OpenFileDialog();
-            fd.DefaultExt = "*.ani";
-            fd.Filter = "RSDKv1 Animation Files|*.ani|RSDKv2 Animation Files|*.ani|RSDKv3 and RSDKv4 Animation Files|*.ani|RSDKv5 Animation Files|*.bin";
+            fd.DefaultExt = "*.bin";
+            fd.Filter = "RSDKv5 Animation Files|*.bin|RSDKv3 and RSDKv4 Animation Files|*.ani|RSDKv2 Animation Files|*.ani|RSDKv1 Animation Files|*.ani";
             if (fd.ShowDialog() == true)
             {
-                //Flags are unknown for RSDKv1 and RSDKv2, so don't let users change them (for safety)
-                if (fd.FilterIndex - 1 < 2) { FlagsSelector.IsEnabled = false; MenuViewHitbox.IsEnabled = false; HitBoxComboBox.IsEnabled = false; HitBoxComboBox2.IsEnabled = false; }
-                if (fd.FilterIndex - 1 >= 2) { FlagsSelector.IsEnabled = true; MenuViewHitbox.IsEnabled = true; HitBoxComboBox.IsEnabled = true; HitBoxComboBox2.IsEnabled = true; }
 
-                //For RSDKv1, RSDKv2 and RSDKv3 there is no ID and the Delay is always 256, so there is no point to let users change their values
-                if (fd.FilterIndex - 1 < 3) { DelayNUD.IsEnabled = false; idNUD.IsEnabled = false; }
-                if (fd.FilterIndex - 1 >= 3) { DelayNUD.IsEnabled = true; idNUD.IsEnabled = true; }
+                //Flags are unknown for RSDKv1 and RSDKv2, so don't let users change them (for safety)
+                if (fd.FilterIndex - 1 > 1) { FlagsSelector.IsEnabled = false;}
+                if (fd.FilterIndex - 1 < 2) { FlagsSelector.IsEnabled = true; }
+
+                //I'm not entirely sure how retro-Sonic Stores it's Pivots & Hitboxes yet, So, uhh, Don't Touch?
+                if (fd.FilterIndex - 1 == 3) { MenuViewHitbox.IsEnabled = false; HitBoxComboBox.IsEnabled = false; HitBoxComboBox2.IsEnabled = false; PivotXBox.IsEnabled = false; PivotYBox.IsEnabled = false; }
+                if (fd.FilterIndex - 1 != 3) { FlagsSelector.IsEnabled = true; MenuViewHitbox.IsEnabled = true; HitBoxComboBox.IsEnabled = true; HitBoxComboBox2.IsEnabled = true; PivotXBox.IsEnabled = true; PivotYBox.IsEnabled = true; }
+
+                //For RSDKvRS, RSDKv1 and RSDKv1 & RSDKvB there is no ID and the Delay is always 256, so there is no point to let users change their values
+                if (fd.FilterIndex - 1 >= 1) { DelayNUD.IsEnabled = false; idNUD.IsEnabled = false; }
+                if (fd.FilterIndex - 1 == 0) { DelayNUD.IsEnabled = true; idNUD.IsEnabled = true; }
                     ViewModel.FileOpen(fd.FileName,fd.FilterIndex -1);
                 
             }
@@ -48,8 +53,8 @@ namespace AnimationEditor
         private void MenuFileSaveAs_Click(object sender, RoutedEventArgs e)
         {
             var fd = new SaveFileDialog();
-            fd.DefaultExt = "*.ani";
-            fd.Filter = "RSDKv1 Animation Files|*.ani|RSDKv2 Animation Files|*.ani|RSDKv3 and RSDKv4 Animation Files|*.ani|RSDKv5 Animation Files|*.bin";
+            fd.DefaultExt = "*.bin";
+            fd.Filter = "RSDKv5 Animation Files|*.bin|RSDKv3 and RSDKv4 Animation Files|*.ani|RSDKv2 Animation Files|*.ani|RSDKv1 Animation Files|*.ani";
             if (fd.ShowDialog() == true)
             {
                 ViewModel.FileSave(fd.FileName);

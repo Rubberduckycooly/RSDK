@@ -57,7 +57,7 @@ namespace AnimationEditor.Services
                         return decoder.Frames.FirstOrDefault();
                     }
 
-                    if (ext == ".png") //because why not?
+                    if (ext == ".png") //Because why not?
                     {
                         var decoder = new PngBitmapDecoder(fStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                         return decoder.Frames.FirstOrDefault();

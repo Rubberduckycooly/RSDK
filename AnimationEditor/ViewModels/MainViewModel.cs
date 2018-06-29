@@ -86,7 +86,7 @@ namespace AnimationEditor.ViewModels
                 IsHitboxV5 = !IsHitboxV3;
                 if (IsHitboxV3)
                 {
-                    if (PathMod == "..\\sprites")
+                    if (LoadedAnimVer == 3 || LoadedAnimVer == 2)
                     {
                     HitboxEntries = new ObservableCollection<IHitboxEntry>(_animationData.GetHitboxes());
                     HitboxItems = HitboxEntries != null ? new ObservableCollection<string>(
@@ -532,36 +532,36 @@ namespace AnimationEditor.ViewModels
 
                         //All Animation Types Show up when any RSDK version except 5 is selected, so this is a check to make sure that
                         //the program loads the right file type
-                        if (fi < 3)
+                        if (fi > 0)
                         {
-                        if (TypeCheck == 0) { fi = 1; }
-                        if (TypeCheck2 > 0) { fi = 2; }
-                        if (TypeCheck == 30 && TypeCheck2 >= 0) { fi = 0; isRSDC = true; }
-                        else if (TypeCheck > 0 && TypeCheck2 > 0 && TypeCheck != 30) { fi = 0; }
+                        if (TypeCheck == 0) { fi = 2; LoadedAnimVer = 2; }
+                        if (TypeCheck2 > 0) { fi = 1; LoadedAnimVer = 3; }
+                        if (TypeCheck == 30 && TypeCheck2 >= 0) { fi = 3; isRSDC = true; LoadedAnimVer = 1; }
+                        else if (TypeCheck > 0 && TypeCheck2 < 3 && TypeCheck != 30) { fi = 3; LoadedAnimVer = 1;}
                         }
 
                         switch (fi)
                         {
                             case 0:
-                                PathMod = "";
-                                LoadedAnimVer = 1;
-                                AnimationData = new RSDK1.Animation(reader, isRSDC);
-                                break;
-                            case 1:
-                                 PathMod = "..\\sprites\\Sonic";
-                                LoadedAnimVer = 2;
-                                AnimationData = new RSDK2.Animation(reader);
-                                break;
-                            case 2:
-                                PathMod = "..\\sprites";
-                                LoadedAnimVer = 3;
-                                AnimationData = new RSDK3.Animation(reader);
-                                break;
-                            case 3:
                                 PathMod = "..";
                                 LoadedAnimVer = 5;
                                 AnimationData = new RSDK5.Animation(reader);
                                 return false;
+                            case 1:
+                                PathMod = "..\\sprites";
+                                LoadedAnimVer = 3;
+                                AnimationData = new RSDK3.Animation(reader);
+                                break;
+                            case 2:
+                                PathMod = "..\\sprites";
+                                LoadedAnimVer = 2;
+                                AnimationData = new RSDK2.Animation(reader);
+                                break;
+                            case 3:
+                                PathMod = "";
+                                LoadedAnimVer = 1;
+                                AnimationData = new RSDK1.Animation(reader, isRSDC);
+                                break;
                             default:
                                 return false;
                         }
@@ -722,6 +722,7 @@ namespace AnimationEditor.ViewModels
                 SelectedFrameIndex = curFrameIndex;
                 _spriteService.Invalidate(SelectedFrameTexture, item.Frame);
                 OnPropertyChanged(nameof(SelectedFrameIndex));
+                
             }
         }
 

@@ -254,12 +254,12 @@
                                   SelectedIndex="{Binding Flags, Mode=TwoWay}">
                             <TextBlock Text="Default behavior"/>
                             <TextBlock Text="Full engine rotation"/>
-                            <TextBlock Text="Partial engine rotation"/>
+                            <TextBlock Text="45 Degree engine rotation"/>
                             <TextBlock Text="Static rotation using extra frames"/>
-                            <TextBlock Text="Unknown"/>
-                            <TextBlock Text="UNUSED?"/>
-                            <TextBlock Text="UNUSED?"/>
-                            <TextBlock Text="UNUSED?"/>
+                            <TextBlock Text="1/2 Engine Rotation"/>
+                            <TextBlock Text="90 Degree Engine Rotation"/>
+                            <TextBlock Text="135/225 degree Rotation"/>
+                            <TextBlock Text="Just 135 degree Rotation"/>
                         </ComboBox>
 
                     </Grid>
@@ -351,11 +351,11 @@
                                     MinimumValue="0" MaximumValue="32767"
                                     Value="{Binding SelectedFrameHeight, Mode=TwoWay}"/>
                                 <TextBlock Grid.Column="0" Grid.Row="5" Text="PivotX"/>
-                                <xc:NumericUpDown Grid.Column="1" Grid.Row="5"
+                                <xc:NumericUpDown x:Name="PivotXBox" Grid.Column="1" Grid.Row="5"
                                     MinimumValue="-32768" MaximumValue="32767"
                                     Value="{Binding SelectedFramePivotX, Mode=TwoWay}"/>
                                 <TextBlock Grid.Column="3" Grid.Row="5" Text="PivotY"/>
-                                <xc:NumericUpDown Grid.Column="4" Grid.Row="5"
+                                <xc:NumericUpDown x:Name="PivotYBox" Grid.Column="4" Grid.Row="5"
                                     MinimumValue="-32768" MaximumValue="32767"
                                     Value="{Binding SelectedFramePivotY, Mode=TwoWay}"/>
                                 <TextBlock Grid.Column="0" Grid.Row="7" Text="ID"/>
