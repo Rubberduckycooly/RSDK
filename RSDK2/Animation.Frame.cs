@@ -68,7 +68,7 @@ namespace RSDK2
         public void Read(BinaryReader reader)
         {
             // byte 1 - Number of image the frame is located in
-            // byte 2 - Collision Box?	
+            // byte 2 - Collision Box
             // byte 3 - X position in image of the frame
             // byte 4 - Y position in image of the frame
             // byte 5 - Width of frame

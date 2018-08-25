@@ -21,7 +21,7 @@ int main() {
 	for (int i = 0; STAGES[i][0]; i++) {
 		char buf1[0x100], buf2[0x100];
 		sprintf_s(buf1, "Data/Stages/%s/StageConfig.bin", STAGES[i]);
-		sprintf_s(buf2, "Data/Scripts/Bytecode/%s.bin", STAGES[i]);
+		sprintf_s(buf2, "Data/Scripts/ByteCode/%s.bin", STAGES[i]);
 
 		printf("Decompiling stage %s\n", STAGES[i]);
 		objsys->ClearScriptData();

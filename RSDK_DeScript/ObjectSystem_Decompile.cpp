@@ -34,6 +34,7 @@ void _SetArrayValue(char *strOut, const char *strIn, int index) {
 void ObjectSystem::Decompile() {
 	for (int i = 1; sourceNames[i][0] != '\0'; i++) {
 		FILE *f = fopen(sourceNames[i], "w");
+		printf(sourceNames[i]);
 		if (f != NULL) {
 			if (i == 11) continue;
 

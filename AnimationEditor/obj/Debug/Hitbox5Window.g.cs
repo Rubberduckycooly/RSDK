@@ -76,7 +76,7 @@ namespace AnimationEditor {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/AnimationEditor;component/hitbox5window.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/RSDK Animation Editor;component/hitbox5window.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\Hitbox5Window.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

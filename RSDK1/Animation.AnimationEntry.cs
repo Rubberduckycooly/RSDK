@@ -43,12 +43,6 @@ namespace RSDK1
 
         private bool Flag2;
 
-        //private int animNo = 1;
-
-        //	private byte[] debugData;
-
-        //	private byte[][] debugData2;
-
 
         public int Flags { get; set; }
 

@@ -40,9 +40,11 @@ namespace RSDK2
 
         public IEnumerable<string> HitboxTypes => null;
 
+        public byte[] UnusedBytes;
+
         public Animation(BinaryReader reader)
         {
-            reader.ReadBytes(5); //skip these bytes, as they seem to be useless/unused...
+            UnusedBytes = reader.ReadBytes(5); //skip these bytes, as they seem to be useless/unused...
 
             int spriteSheetsCount = 3; //always 3
 
@@ -64,7 +66,8 @@ namespace RSDK2
             }
             byteBuf = null;
 
-            reader.ReadByte(); //skip this byte, it seems to be useless
+            byte EndTexFlag = reader.ReadByte(); //Seems to tell the RSDK's reader when to stop reading textures???
+            
             // Read number of animations
             var animationsCount = reader.ReadByte();
 
@@ -82,10 +85,11 @@ namespace RSDK2
                 Animations.Add(new AnimationEntry(("Sonic-Nexus Animation #" + (i + 1)), frameCount, animationSpeed,
                     loopFrom, 0, reader));
             }
-                var collisionBoxesCount = reader.ReadByte();
-                Hitboxes = new List<HitboxEntry>(collisionBoxesCount);
-                while (collisionBoxesCount-- > 0)
-                    Hitboxes.Add(new HitboxEntry(reader));
+
+            var collisionBoxesCount = reader.ReadByte();
+            Hitboxes = new List<HitboxEntry>(collisionBoxesCount);
+            while (collisionBoxesCount-- > 0)
+            { Hitboxes.Add(new HitboxEntry(reader)); }
         }
         public void Factory(out IAnimationEntry o) { o = new AnimationEntry(); }
         public void Factory(out IFrame o) { o = new Frame(); }
@@ -122,11 +126,7 @@ namespace RSDK2
 
         public void SaveChanges(BinaryWriter writer)
         {
-            writer.Write((byte)0);
-            writer.Write((byte)0);
-            writer.Write((byte)0);
-            writer.Write((byte)0);
-            writer.Write((byte)0);
+            writer.Write(UnusedBytes);
 
             var spriteSheetsCount = (byte)Math.Min(SpriteSheets.Count, byte.MaxValue);
 
@@ -136,7 +136,7 @@ namespace RSDK2
                 writer.Write(StringEncoding.GetBytes(item));
             }
 
-            writer.Write((byte)0); //"skip" this byte, it seems to be useless
+            writer.Write((byte)0); //Write the "EndTexFlag" byte
 
             var animationsCount = (byte)Math.Min(Animations.Count, byte.MaxValue);
             writer.Write(animationsCount);

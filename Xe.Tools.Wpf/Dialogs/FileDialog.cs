@@ -47,7 +47,12 @@ namespace Xe.Tools.Wpf.Dialogs
             XeAnimation,
             ImagePng,
             ImageGif,
+            ImageBmp,
 
+            Rsdk1Animation,
+            Rsdk1Frame,
+            Rsdk2Animation,
+            Rsdk2Frame,
             Rsdk3Animation,
             Rsdk3Frame,
             Rsdk5Animation,
@@ -148,6 +153,26 @@ namespace Xe.Tools.Wpf.Dialogs
                     case Type.ImageGif:
                         fd.Filters.Add(CreateFilter("GIF image files",
                             new string[] { "gif" }));
+                        break;
+                    case Type.ImageBmp:
+                        fd.Filters.Add(CreateFilter("Bitmap image files",
+                            new string[] { "bmp" }));
+                        break;
+                    case Type.Rsdk1Animation:
+                        fd.Filters.Add(CreateFilter("RSDK1 animation files",
+                            new string[] { "anim.rsdk1" }));
+                        break;
+                    case Type.Rsdk1Frame:
+                        fd.Filters.Add(CreateFilter("RSDK1 frame files",
+                            new string[] { "frame.rsdk1" }));
+                        break;
+                    case Type.Rsdk2Animation:
+                        fd.Filters.Add(CreateFilter("RSDK2 animation files",
+                            new string[] { "anim.rsdk2" }));
+                        break;
+                    case Type.Rsdk2Frame:
+                        fd.Filters.Add(CreateFilter("RSDK2 frame files",
+                            new string[] { "frame.rsdk2" }));
                         break;
                     case Type.Rsdk3Animation:
                         fd.Filters.Add(CreateFilter("RSDK3 animation files",

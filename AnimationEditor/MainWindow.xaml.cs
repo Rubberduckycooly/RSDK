@@ -19,6 +19,7 @@ namespace AnimationEditor
         {
             InitializeComponent();
             DataContext = new MainViewModel();
+            List.AllowDrop = true;
         }
 
         private void MenuFileOpen_Click(object sender, RoutedEventArgs e)
@@ -243,6 +244,8 @@ namespace AnimationEditor
 
         private void List_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            if (ViewModel.LoadedAnimVer >= 3)
+            {
             var dialog = new SingleInputDialog()
             {
                 Text = ViewModel.SelectedAnimation.Name,
@@ -261,6 +264,7 @@ namespace AnimationEditor
                     MessageBox.Show("An animation with the name {dialog.Name} already exists.\nPlease specify another name.",
                         "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
             }
         }
 
@@ -290,6 +294,5 @@ namespace AnimationEditor
         {
             //Frame Index Changing Goes Here
         }
-
     }
 }
