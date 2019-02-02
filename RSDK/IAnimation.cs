@@ -92,6 +92,8 @@ namespace RSDK
         IEnumerable<string> HitboxTypes { get; }
         List<string> SpriteSheets { get; }
 
+        int PlayerType { get; set; }
+
         // T Factory<T>();
         void Factory(out IAnimationEntry o);
         void Factory(out IFrame o);

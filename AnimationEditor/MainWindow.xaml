@@ -25,7 +25,7 @@
         </Menu>
         <Grid Margin="5" IsEnabled="{Binding IsAnimationDataLoaded}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="162"/>
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="4*"/>
                 <ColumnDefinition Width="5"/>
@@ -80,7 +80,41 @@
                                 </StackPanel>
                             </Button.ToolTip>
                         </Button>
-
+                        <Button BorderThickness="0" Background="Transparent" Click="ButtonAnimationUp_Click">
+                            <Button.ToolTip>
+                                <StackPanel>
+                                    <Label Content="Shifts the Current Animation Up by one"/>
+                                </StackPanel>
+                            </Button.ToolTip>
+                            <Canvas Name="layer1" Width="16" Height="16">
+                                <Canvas.RenderTransform>
+                                    <TranslateTransform X="-58.281468" Y="-147.79702"/>
+                                </Canvas.RenderTransform>
+                                <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="rect3729" Fill="#FF388A34" StrokeThickness="0.96517706" Stroke="#FFF6F6F6" StrokeMiterLimit="4" Opacity="1" Data="m 66.743113 149.00094 -3.186052 3.30714 -3.186049 3.30701 h 3.222124 v 8.38232 h 6.048585 v -8.38232 h 3.473719 l -3.186053 -3.30701 z"/>
+                            </Canvas>
+                        </Button>
+                        <Button BorderThickness="0" Background="Transparent" Click="ButtonAnimationDown_Click">
+                            <Button.ToolTip>
+                                <StackPanel>
+                                    <Label Content="Shifts the Current Animation Down by one"/>
+                                </StackPanel>
+                            </Button.ToolTip>
+                            <Canvas x:Name="layer2" Width="16" Height="16">
+                                <Canvas.RenderTransform>
+                                    <TranslateTransform X="-77" Y="-162.5"/>
+                                </Canvas.RenderTransform>
+                                <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="rect1" Fill="#FF388A34" StrokeThickness="0.96517706" Stroke="#FFF6F6F6" StrokeMiterLimit="4" Opacity="1" Data="m 66.743113 149.00094 -3.186052 3.30714 -3.186049 3.30701 h 3.222124 v 8.38232 h 6.048585 v -8.38232 h 3.473719 l -3.186053 -3.30701 z" RenderTransformOrigin="1.024,0.999">
+                                    <Path.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform/>
+                                            <SkewTransform/>
+                                            <RotateTransform Angle="180"/>
+                                            <TranslateTransform/>
+                                        </TransformGroup>
+                                    </Path.RenderTransform>
+                                </Path>
+                            </Canvas>
+                        </Button>
                     </ToolBarPanel>
                     <ListBox x:Name="List" ItemsSource="{Binding Animations}" DisplayMemberPath="Name"
                          SelectedItem="{Binding SelectedAnimation, Mode=OneWayToSource}"
@@ -201,7 +235,50 @@
                             <Label Content="Export the selected frame"/>
                         </Button.ToolTip>
                     </Button>
-
+                    <Button BorderThickness="0" Background="Transparent" Click="ButtonFrameLeft_Click">
+                        <Button.ToolTip>
+                            <StackPanel>
+                                <Label Content="Shifts the Current Frame to the left by one."/>
+                            </StackPanel>
+                        </Button.ToolTip>
+                        <Canvas Name="layer3" Width="16" Height="16">
+                            <Canvas.RenderTransform>
+                                <TranslateTransform X="-61" Y="-165"/>
+                            </Canvas.RenderTransform>
+                            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FF388A34" StrokeThickness="0.96517706" Stroke="#FFF6F6F6" StrokeMiterLimit="4" Opacity="1" Data="m 66.743113 149.00094 -3.186052 3.30714 -3.186049 3.30701 h 3.222124 v 8.38232 h 6.048585 v -8.38232 h 3.473719 l -3.186053 -3.30701 z" RenderTransformOrigin="1.024,0.999">
+                                <Path.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform/>
+                                        <SkewTransform/>
+                                        <RotateTransform Angle="-90"/>
+                                        <TranslateTransform/>
+                                    </TransformGroup>
+                                </Path.RenderTransform>
+                            </Path>
+                        </Canvas>
+                    </Button>
+                    <Button BorderThickness="0" Background="Transparent" Click="ButtonFrameRight_Click">
+                        <Button.ToolTip>
+                            <StackPanel>
+                                <Label Content="Shifts the Current Frame to the right by one."/>
+                            </StackPanel>
+                        </Button.ToolTip>
+                        <Canvas x:Name="layer4" Width="16" Height="16">
+                            <Canvas.RenderTransform>
+                                <TranslateTransform X="-75" Y="-146.5"/>
+                            </Canvas.RenderTransform>
+                            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="#FF388A34" StrokeThickness="0.96517706" Stroke="#FFF6F6F6" StrokeMiterLimit="4" Opacity="1" Data="m 66.743113 149.00094 -3.186052 3.30714 -3.186049 3.30701 h 3.222124 v 8.38232 h 6.048585 v -8.38232 h 3.473719 l -3.186053 -3.30701 z" RenderTransformOrigin="1.024,0.999">
+                                <Path.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform/>
+                                        <SkewTransform/>
+                                        <RotateTransform Angle="90"/>
+                                        <TranslateTransform/>
+                                    </TransformGroup>
+                                </Path.RenderTransform>
+                            </Path>
+                        </Canvas>
+                    </Button>
                 </StackPanel>
                 <Canvas Margin="0 0 0 5" SizeChanged="Canvas_SizeChanged"
                         RenderOptions.BitmapScalingMode="NearestNeighbor"
@@ -358,7 +435,7 @@
                                 <xc:NumericUpDown x:Name="PivotYBox" Grid.Column="4" Grid.Row="5"
                                     MinimumValue="-32768" MaximumValue="32767"
                                     Value="{Binding SelectedFramePivotY, Mode=TwoWay}"/>
-                                <TextBlock Grid.Column="0" Grid.Row="7" Text="ID"/>
+                                <TextBlock x:Name="IDLabel" Grid.Column="0" Grid.Row="7" Text="ID"/>
                                 <xc:NumericUpDown x:Name="idNUD" Grid.Column="1" Grid.Row="7"
                                     MinimumValue="0" MaximumValue="65535"
                                     Value="{Binding SelectedFrameId, Mode=TwoWay}"/>

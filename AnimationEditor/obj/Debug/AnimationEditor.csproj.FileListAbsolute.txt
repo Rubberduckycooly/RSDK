@@ -2,17 +2,9 @@ C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation E
 C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDK Animation Editor.exe
 C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDK Animation Editor.pdb
 C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDK.dll
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDK1.dll
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDK2.dll
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDK3.dll
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDK5.dll
 C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\Xe.Tools.Wpf.dll
 C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\Microsoft.WindowsAPICodePack.Shell.dll
 C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\Microsoft.WindowsAPICodePack.dll
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDK1.pdb
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDK2.pdb
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDK3.pdb
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDK5.pdb
 C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDK.pdb
 C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\Xe.Tools.Wpf.pdb
 C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\obj\Debug\AboutWindow.g.cs
@@ -37,3 +29,11 @@ C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation E
 C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\obj\Debug\RSDK Animation Editor.exe
 C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\obj\Debug\RSDK Animation Editor.pdb
 C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\obj\Debug\AnimationEditor.csprojAssemblyReference.cache
+C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDKv1.dll
+C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDKv2.dll
+C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDKv5.dll
+C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDKvRS.dll
+C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDKvRS.pdb
+C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDKv1.pdb
+C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDKv2.pdb
+C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\AnimationEditor\bin\Debug\RSDKv5.pdb

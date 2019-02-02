@@ -57,8 +57,6 @@ namespace RSDK1
 
         public int[] Hitbox;
 
-        public int[] PivotVals;
-
         public IHitbox GetHitbox(int index)
         {
             return new Hitbox();
@@ -90,17 +88,13 @@ namespace RSDK1
             Id = 0;
 
             Hitbox = new int[4];
-            PivotVals = new int[2];
 
             for (int k = 0; k < 4; k++)
             { Hitbox[k] = reader.ReadByte(); }
 
-            for (int k = 0; k < 2; k++)
-            { PivotVals[k] = reader.ReadByte(); }
 
-            // Compute hotspot displacements
-            CenterX = Hitbox[2] - PivotVals[0]; //PivotVal[0] is the true Value, this calculation is just done so the animation looks right upon playback
-            CenterY = Hitbox[3] - PivotVals[1]; //PivotVal[1] is the true Value, this calculation is just done so the animation looks right upon playback
+            CenterX = -reader.ReadByte();
+            CenterY = -reader.ReadByte();
         }
 
         public void Write(BinaryWriter writer)
@@ -114,8 +108,8 @@ namespace RSDK1
             writer.Write((byte)Hitbox[1]); //Hitbox values, Top
             writer.Write((byte)Hitbox[2]); //Hitbox values, Right
             writer.Write((byte)Hitbox[3]); //Hitbox values, Bottom
-            writer.Write((byte)PivotVals[0]); 
-            writer.Write((byte)PivotVals[1]);
+            writer.Write((byte)-CenterX); 
+            writer.Write((byte)-CenterY);
         }
 
         public object Clone()

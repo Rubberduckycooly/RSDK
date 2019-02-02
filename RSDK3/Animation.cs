@@ -32,6 +32,8 @@ namespace RSDK3
     {
         public int Version => 3;
 
+        public int PlayerType { get; set; }
+
         public List<string> SpriteSheets { get; }
 
         public List<AnimationEntry> Animations { get; }

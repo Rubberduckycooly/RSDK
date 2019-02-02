@@ -8,11 +8,11 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("RSDK Animation Editor")]
-[assembly: AssemblyDescription("RSDK Animation Editor")]
+[assembly: AssemblyDescription("An animation editor for the animation files supported by the RSDK")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Xeeynamo/Rubberduckycooly")]
+[assembly: AssemblyCompany("Xeeynamo/Rubberduckycooly/SuperSonic16")]
 [assembly: AssemblyProduct("RSDK Animation Editor")]
-[assembly: AssemblyCopyright("Copyright ©  2017-2018")]
+[assembly: AssemblyCopyright("Copyright ©  2017-2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,5 +51,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.3.2.0")]
-[assembly: AssemblyFileVersion("1.3.2.0")]
+[assembly: AssemblyVersion("1.4.0.0")]
+[assembly: AssemblyFileVersion("1.4.0.0")]

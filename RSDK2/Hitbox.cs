@@ -15,22 +15,44 @@ namespace RSDK2
 
         public Hitbox() { }
 
-        public Hitbox(BinaryReader reader)
+        public Hitbox(BinaryReader reader,bool BitFlipped = false)
         {
-            Read(reader);
+            Read(reader,BitFlipped);
         }
 
         public void SaveChanges(BinaryWriter writer)
         {
             Write(writer);
         }
-
         public void Read(BinaryReader reader)
         {
             Left = reader.ReadSByte();
             Top = reader.ReadSByte();
             Right = reader.ReadSByte();
             Bottom = reader.ReadSByte();
+        }
+
+        public void Read(BinaryReader reader,bool BitFlipped = false)
+        {
+            Left = reader.ReadSByte();
+            Top = reader.ReadSByte();
+            Right = reader.ReadSByte();
+            Bottom = reader.ReadSByte();
+            if (BitFlipped)
+            {
+                byte l = (byte)Left;
+                byte r = (byte)Right;
+                byte b = (byte)Bottom;
+                byte t = (byte)Top;
+                l ^= 255;
+                t ^= 255;
+                r ^= 255;
+                b ^= 255;
+                Left = (sbyte)l;
+                Right = (sbyte)r;
+                Bottom = (sbyte)b;
+                Top = (sbyte)t;
+            }
         }
 
         public void Write(BinaryWriter writer)

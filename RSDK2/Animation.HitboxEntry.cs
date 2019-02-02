@@ -38,11 +38,11 @@ namespace RSDK2
                 Hitboxes[i] = new Hitbox();
         }
 
-		public HitboxEntry(BinaryReader reader)
+		public HitboxEntry(BinaryReader reader,bool BitFlipped = false)
         {
             Hitboxes = new Hitbox[8];
             for (int i = 0; i < Hitboxes.Length; i++)
-                Hitboxes[i] = new Hitbox(reader);
+                Hitboxes[i] = new Hitbox(reader,BitFlipped);
         }
 
         public IHitbox GetHitbox(int index)

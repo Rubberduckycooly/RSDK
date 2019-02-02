@@ -26,20 +26,18 @@ namespace AnimationEditor
         {
             var fd = new OpenFileDialog();
             fd.DefaultExt = "*.bin";
-            fd.Filter = "RSDKv5 Animation Files|*.bin|RSDKv3 and RSDKv4 Animation Files|*.ani|RSDKv2 Animation Files|*.ani|RSDKv1 Animation Files|*.ani";
+            fd.Filter = "RSDKv5 Animation Files|*.bin|RSDKv2 and RSDKvB Animation Files|*.ani|RSDKv1 Animation Files|*.ani|RSDKvRS Animation Files|*.ani";
             if (fd.ShowDialog() == true)
             {
 
-                //Flags are unknown for RSDKv1 and RSDKv2, so don't let users change them (for safety)
+                //RSDKvRS and RSDKv1 don't have rotation flags
                 if (fd.FilterIndex - 1 > 1) { FlagsSelector.IsEnabled = false;}
                 if (fd.FilterIndex - 1 < 2) { FlagsSelector.IsEnabled = true; }
 
-                //I'm not entirely sure how retro-Sonic Stores it's Pivots & Hitboxes yet, So, uhh, Don't Touch?
-                if (fd.FilterIndex - 1 == 3) { MenuViewHitbox.IsEnabled = false; HitBoxComboBox.IsEnabled = false; HitBoxComboBox2.IsEnabled = false; PivotXBox.IsEnabled = false; PivotYBox.IsEnabled = false; }
-                if (fd.FilterIndex - 1 != 3) { FlagsSelector.IsEnabled = true; MenuViewHitbox.IsEnabled = true; HitBoxComboBox.IsEnabled = true; HitBoxComboBox2.IsEnabled = true; PivotXBox.IsEnabled = true; PivotYBox.IsEnabled = true; }
-
-                //For RSDKvRS, RSDKv1 and RSDKv1 & RSDKvB there is no ID and the Delay is always 256, so there is no point to let users change their values
+                //For RSDKvRS, RSDKv1 and RSDKv2 & RSDKvB there is no ID and the Delay is always 256, so there is no point to let users change their values
                 if (fd.FilterIndex - 1 >= 1) { DelayNUD.IsEnabled = false; idNUD.IsEnabled = false; }
+                if (fd.FilterIndex - 1 == 3) { idNUD.IsEnabled = true; IDLabel.Text = "Player"; }
+                else { IDLabel.Text = "ID"; }
                 if (fd.FilterIndex - 1 == 0) { DelayNUD.IsEnabled = true; idNUD.IsEnabled = true; }
                     ViewModel.FileOpen(fd.FileName,fd.FilterIndex -1);
                 
@@ -70,6 +68,26 @@ namespace AnimationEditor
         private void ButtonAnimationAdd_Click(object sender, RoutedEventArgs e)
         {
             ViewModel.AnimationAdd();
+        }
+
+        private void ButtonAnimationUp_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.AnimationUp();
+        }
+
+        private void ButtonAnimationDown_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.AnimationDown();
+        }
+
+        private void ButtonFrameLeft_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.FrameLeft();
+        }
+
+        private void ButtonFrameRight_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.FrameRight();
         }
 
         private void ButtonAnimationDuplicate_Click(object sender, RoutedEventArgs e)
@@ -246,25 +264,25 @@ namespace AnimationEditor
         {
             if (ViewModel.LoadedAnimVer >= 3)
             {
-            var dialog = new SingleInputDialog()
-            {
-                Text = ViewModel.SelectedAnimation.Name,
-                Description = "Please select the name of the animation"
-            };
+                var dialog = new SingleInputDialog()
+                {
+                    Text = ViewModel.SelectedAnimation.Name,
+                    Description = "Please select the name of the animation"
+                };
 
-            if (dialog.ShowDialog() == true)
-            {
-                if (string.IsNullOrWhiteSpace(dialog.Text))
+                if (dialog.ShowDialog() == true)
                 {
-                    MessageBox.Show("You have specified an empty file name.",
-                        "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (string.IsNullOrWhiteSpace(dialog.Text))
+                    {
+                        MessageBox.Show("You have specified an empty file name.",
+                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else if (!ViewModel.ChangeCurrentAnimationName(dialog.Text))
+                    {
+                        MessageBox.Show("An animation with the name {dialog.Name} already exists.\nPlease specify another name.",
+                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
-                else if (!ViewModel.ChangeCurrentAnimationName(dialog.Text))
-                {
-                    MessageBox.Show("An animation with the name {dialog.Name} already exists.\nPlease specify another name.",
-                        "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
             }
         }
 

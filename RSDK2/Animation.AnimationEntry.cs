@@ -44,20 +44,23 @@ namespace RSDK2
         public AnimationEntry()
         {
         }
-
         public AnimationEntry(BinaryReader reader)
         {
             Read(reader);
         }
+        public AnimationEntry(BinaryReader reader,bool BitFlipped)
+        {
+            Read(reader);
+        }
 
-        public AnimationEntry(string name, int framecount, int speed, int loopStart, int flags, BinaryReader reader)
+        public AnimationEntry(string name, int framecount, int speed, int loopStart, int flags, BinaryReader reader, bool BitFlipped = false)
         {
             Name = name;
             Speed = speed;
             Loop = loopStart;
             Flags = flags;
             FrameCount = framecount;
-            Read(reader);
+            Read(reader,BitFlipped);
         }
 
         public IEnumerable<IFrame> GetFrames()
@@ -84,6 +87,15 @@ namespace RSDK2
             {
                 var frame = new Frame();
                 frame.Read(reader);
+                Frames.Add(frame);
+            }
+        }
+        public void Read(BinaryReader reader, bool BitFlipped = false)
+        {
+            for (int i = 0; i < FrameCount; i++)
+            {
+                var frame = new Frame();
+                frame.Read(reader,BitFlipped);
                 Frames.Add(frame);
             }
         }

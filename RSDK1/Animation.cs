@@ -30,11 +30,49 @@ namespace RSDK1
 {
     public class Animation : IAnimation
     {
+        public string[] AnimNames = new string[]
+        {
+            "Stopped",
+            "Waiting",
+            "Looking Up",
+            "Looking Down",
+            "Walking",
+            "Running",
+            "Skidding",
+            "SuperPeelOut",
+            "Spin Dash",
+            "Jumping",
+            "Bouncing",
+            "Hurt",
+            "Dying",
+            "Life Icon",
+            "Drowning",
+            "Fan Rotate",
+            "Breathing",
+            "Pushing",
+            "Flailing Left",
+            "Flailing Right",
+            "Sliding",
+            "Hanging",
+            "Dropping",
+            "FinishPose",
+            "Cork Screw",
+            "Retro Sonic Animation #26",
+            "Retro Sonic Animation #27",
+            "Retro Sonic Animation #28",
+            "Retro Sonic Animation #29",
+            "Retro Sonic Animation #30",
+            "BonusSpin",
+            "SpecialStop",
+            "SpecialWalk",
+            "SpecialJump",
+        };
+
         public int Version => 1;
 
         public List<string> SpriteSheets { get; }
 
-        public byte PlayerType = 0;
+        public int PlayerType { get; set; }
 
         public List<AnimationEntry> Animations { get; }
 
@@ -93,7 +131,16 @@ namespace RSDK1
                 int loopFrom = reader.ReadByte();
 
                 //The Retro Sonic Animation Files Don't Have Names, so let's give them "ID's" instead
-                Animations.Add(new AnimationEntry(("Retro Sonic Animation #" + (i+1)), frameCount, animationSpeed,
+                string name = "Retro Sonic Animation #" + (i + 1);
+                try
+                {
+                    name = AnimNames[i];
+                }
+                catch (Exception ex)
+                {
+                    name = "Retro Sonic Animation #" + (i + 1);
+                }
+                Animations.Add(new AnimationEntry(name, frameCount, animationSpeed,
                     loopFrom, false, false, reader));
                 }
             }
@@ -134,7 +181,7 @@ namespace RSDK1
         public void SaveChanges(BinaryWriter writer)
         {
             writer.Write((byte)0);
-            writer.Write((byte)0);
+            writer.Write((byte)PlayerType);
             var animationsCount = (byte)Math.Min(Animations.Count, byte.MaxValue);
             writer.Write(animationsCount);
 

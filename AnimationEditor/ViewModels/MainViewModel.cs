@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -65,7 +66,9 @@ namespace AnimationEditor.ViewModels
             }
         }
 
-        public string Title => string.IsNullOrEmpty(FileName) ? "RSDK Animation Editor" : $"RSDK Animation Editor - {Path.GetFileName(FileName)}";
+        public readonly string TITLE = $"RSDK Animation Editor v{Assembly.GetExecutingAssembly().GetName().Version} ({((AssemblyCompanyAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCompanyAttribute), true)[0]).Company})";
+
+        public string Title => string.IsNullOrEmpty(FileName) ? TITLE : $"{TITLE} - {Path.GetFileName(FileName)}";
         
         public ObservableCollection<string> Textures { get; private set; }
 
@@ -364,12 +367,25 @@ namespace AnimationEditor.ViewModels
 
         public int SelectedFrameId
         {
-            get => (SelectedFrame as RSDK5.Frame)?.Id ?? 0;
+            get
+            {
+                if (AnimationData.Version == 5) return (SelectedFrame as RSDK5.Frame)?.Id ?? 0;
+                else if (AnimationData.Version == 1) return AnimationData.PlayerType;
+                return 0;
+            }
             set
             {
-                if (SelectedFrame is RSDK5.Frame frame)
+                if (AnimationData.Version == 5)
                 {
-                    frame.Id = value;
+                    if (SelectedFrame is RSDK5.Frame frame)
+                    {
+                        frame.Id = value;
+                        InvalidateCanvas();
+                    }
+                }
+                else if (AnimationData.Version == 1)
+                {
+                    AnimationData.PlayerType = value;
                     InvalidateCanvas();
                 }
             }
@@ -534,10 +550,10 @@ namespace AnimationEditor.ViewModels
                         //the program loads the right file type
                         if (fi > 0)
                         {
-                        if (TypeCheck == 0) { fi = 2; LoadedAnimVer = 2; }
-                        if (TypeCheck2 > 0) { fi = 1; LoadedAnimVer = 3; }
-                        if (TypeCheck == 30 && TypeCheck2 >= 0) { fi = 3; isRSDC = true; LoadedAnimVer = 1; }
-                        else if (TypeCheck > 0 && TypeCheck2 < 3 && TypeCheck != 30) { fi = 3; LoadedAnimVer = 1;}
+                            if (TypeCheck == 0 || TypeCheck == 0xFF) { fi = 2; LoadedAnimVer = 2; }
+                            if (TypeCheck2 > 0 && TypeCheck2 != 0xFF) { fi = 1; LoadedAnimVer = 3; }
+                            if (TypeCheck == 30 && TypeCheck2 >= 0) { fi = 3; isRSDC = true; LoadedAnimVer = 1; }
+                            else if (TypeCheck > 0 && TypeCheck != 30 && TypeCheck != 0xFF) { fi = 3; LoadedAnimVer = 1; }
                         }
 
                         switch (fi)
@@ -555,7 +571,10 @@ namespace AnimationEditor.ViewModels
                             case 2:
                                 PathMod = "..\\sprites";
                                 LoadedAnimVer = 2;
-                                AnimationData = new RSDK2.Animation(reader);
+                                bool bf = false;
+                                if (TypeCheck == 255 && TypeCheck2 == 255)
+                                    bf = true;
+                                AnimationData = new RSDK2.Animation(reader,bf);
                                 break;
                             case 3:
                                 PathMod = "";
@@ -594,16 +613,48 @@ namespace AnimationEditor.ViewModels
             _animationData.Factory(out IAnimationEntry o);
             Animations.Add(o);
         }
+        public void AnimationUp()
+        {
+            var anim = SelectedAnimation;
+            if (anim != null)
+            {
+                var index = Animations.IndexOf(anim);
+                if (index == 0)
+                    return; // Don't Continue if the entry is first on the list.
+                Animations.Insert(index - 1, anim);
+                Animations.RemoveAt(index + 1);
+                SelectedAnimationIndex = index - 1;
+                SelectedAnimation = anim;
+            }
+        }
+
+        public void AnimationDown()
+        {
+            var anim = SelectedAnimation;
+            if (anim != null)
+            {
+                var index = Animations.IndexOf(anim);
+                if (index == Animations.Count - 1)
+                    return; // Don't Continue if the entry is last on the list.
+                Animations.Insert(index + 2, anim);
+                Animations.RemoveAt(index);
+                SelectedAnimationIndex = index + 1;
+                SelectedAnimation = anim;
+            }
+        }
+
         public void AnimationDuplicate()
         {
             var selectedAnimation = SelectedAnimation;
             if (selectedAnimation != null)
                 Animations.Add(selectedAnimation.Clone() as IAnimationEntry);
         }
+
         public void AnimationRemove()
         {
             Animations.Remove(SelectedAnimation);
         }
+
         public void AnimationImport(string fileName)
         {
             if (!File.Exists(fileName)) return;
@@ -618,6 +669,7 @@ namespace AnimationEditor.ViewModels
                 }
             }
         }
+
         public void AnimationExport(string fileName)
         {
             var selectedAnimation = SelectedAnimation;
@@ -636,6 +688,40 @@ namespace AnimationEditor.ViewModels
         {
             _animationData.Factory(out IFrame frame);
             FrameAdd(frame);
+        }
+
+        public void FrameLeft()
+        {
+            var frame = SelectedFrame;
+            var list = SelectedAnimation.GetFrames().ToList();
+            if (frame != null)
+            {
+                var index = list.IndexOf(frame);
+                if (index == 0)
+                    return; // Don't Continue if the entry is first on the list.
+                list.Insert(index - 1, frame);
+                list.RemoveAt(index + 1);
+                SelectedAnimation.SetFrames(list);
+                SelectedFrameIndex = index - 1;
+                ChangeAllFrames();
+            }
+        }
+
+        public void FrameRight()
+        {
+            var frame = SelectedFrame;
+            var list = SelectedAnimation.GetFrames().ToList();
+            if (frame != null)
+            {
+                var index = list.IndexOf(frame);
+                if (index == list.Count - 1)
+                    return; // Don't Continue if the entry is last on the list.
+                list.Insert(index + 2, frame);
+                list.RemoveAt(index);
+                SelectedAnimation.SetFrames(list);
+                SelectedFrameIndex = index + 1;
+                ChangeAllFrames();
+            }
         }
         public void FrameAdd(IFrame frame, int? insertOnIndex = null)
         {

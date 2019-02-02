@@ -86,6 +86,42 @@ namespace RSDK2
             Id = 0;
         }
 
+        public void Read(BinaryReader reader, bool BitFlipped = false)
+        {
+            // byte 1 - Number of image the frame is located in
+            // byte 2 - Collision Box
+            // byte 3 - X position in image of the frame
+            // byte 4 - Y position in image of the frame
+            // byte 5 - Width of frame
+            // byte 6 - Height of frame
+            // byte 7 - Hot spot horizontal displacement
+            // byte 8 - Hot spot vertical displacement
+            SpriteSheet = reader.ReadByte();
+            CollisionBox = reader.ReadByte();
+            X = reader.ReadByte();
+            Y = reader.ReadByte();
+            Width = reader.ReadByte();
+            Height = reader.ReadByte();
+            CenterX = reader.ReadSByte();
+            CenterY = reader.ReadSByte();
+            if (BitFlipped)
+            {
+                SpriteSheet ^= 255;
+                CollisionBox ^= 255;
+                X ^= 255;
+                Y ^= 255;
+                Width ^= 255;
+                Height ^= 255;
+                byte cx = (byte)CenterX;
+                byte cy = (byte)CenterY;
+                cx ^= 255;
+                cy ^= 255;
+                CenterX = (sbyte)cx;
+                CenterY = (sbyte)cy;
+            }
+            Id = 0;
+        }
+
         public void Write(BinaryWriter writer)
         {
             writer.Write((byte)SpriteSheet);
