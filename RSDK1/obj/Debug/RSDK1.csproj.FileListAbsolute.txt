@@ -1,9 +1,0 @@
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\RSDK1\bin\Debug\RSDK.dll
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\RSDK1\bin\Debug\RSDK.pdb
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\RSDK1\obj\Debug\RSDK1.csproj.CoreCompileInputs.cache
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\RSDK1\obj\Debug\RSDK1.csproj.CopyComplete
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\RSDK1\obj\Debug\RSDK1.csprojAssemblyReference.cache
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\RSDK1\bin\Debug\RSDKvRS.dll
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\RSDK1\bin\Debug\RSDKvRS.pdb
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\RSDK1\obj\Debug\RSDKvRS.dll
-C:\Users\owner\Documents\Sonic Hacking Stuff\Retro Engine Tools\RSDK Animation Editor\Source\RSDK1\obj\Debug\RSDKvRS.pdb
