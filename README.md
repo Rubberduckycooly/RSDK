@@ -1,8 +1,8 @@
-# RSDK reverse and tools
+# RSDK Animation Editor and (OLD) animation libraries
 
 # Original ReadME Section
 
-This is a repository where I am hosting tools and reverse engineering notes from RSDK (Retro-SDK) development kit developed by Christian Whitehead.
+This is a repository where I am hosting tools and reverse engineering notes from RSDK (Retro Software Development Kit) developed by Christian Whitehead.
 
 RSDK has 5 versions:
 * RSDKvRS: Retro Sonic
@@ -16,7 +16,7 @@ The repository supports the Animation Systems of all 5 versions of the RSDK. The
 
 ![picture](http://www.lucianociccariello.com/Content/images/portfolio/projects/rsdk1.png)
 
-During 2012 I created a program to disassemble the bytecode used by RSDKv3. It is old, buggy and released only because it was directly requested. It is no longer maintained and I am uploading it for research purpose only.
+During 2012 I created a program to disassemble the bytecode used by RSDKv2. It is old, buggy and released only because it was directly requested. It is no longer maintained and I am uploading it for research purpose only.
 
 # Rubberduckycooly's ReadME Section
 
