@@ -369,12 +369,14 @@ namespace AnimationEditor.ViewModels
         {
             get
             {
+                if (AnimationData == null) return 0;
                 if (AnimationData.Version == 5) return (SelectedFrame as RSDK5.Frame)?.Id ?? 0;
                 else if (AnimationData.Version == 1) return AnimationData.PlayerType;
                 return 0;
             }
             set
             {
+                if (AnimationData == null) return;
                 if (AnimationData.Version == 5)
                 {
                     if (SelectedFrame is RSDK5.Frame frame)
@@ -550,10 +552,7 @@ namespace AnimationEditor.ViewModels
                         //the program loads the right file type
                         if (fi > 0)
                         {
-                            if (TypeCheck == 0 || TypeCheck == 0xFF) { fi = 2; LoadedAnimVer = 2; }
-                            if (TypeCheck2 > 0 && TypeCheck2 != 0xFF) { fi = 1; LoadedAnimVer = 3; }
                             if (TypeCheck == 30 && TypeCheck2 >= 0) { fi = 3; isRSDC = true; LoadedAnimVer = 1; }
-                            else if (TypeCheck > 0 && TypeCheck != 30 && TypeCheck != 0xFF) { fi = 3; LoadedAnimVer = 1; }
                         }
 
                         switch (fi)

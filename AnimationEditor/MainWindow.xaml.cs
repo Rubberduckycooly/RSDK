@@ -26,7 +26,7 @@ namespace AnimationEditor
         {
             var fd = new OpenFileDialog();
             fd.DefaultExt = "*.bin";
-            fd.Filter = "RSDKv5 Animation Files|*.bin|RSDKv2 and RSDKvB Animation Files|*.ani|RSDKv1 Animation Files|*.ani|RSDKvRS Animation Files|*.ani";
+            fd.Filter = "RSDKv5 Animation Files|*.bin|RSDKv3/RSDKv4 Animation Files|*.ani|RSDKv2 Animation Files|*.ani|RSDKv1 Animation Files|*.ani";
             if (fd.ShowDialog() == true)
             {
 
