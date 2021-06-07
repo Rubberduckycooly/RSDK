@@ -26,7 +26,7 @@ namespace AnimationEditor
         {
             var fd = new OpenFileDialog();
             fd.DefaultExt = "*.bin";
-            fd.Filter = "RSDKv5 Animation Files|*.bin|RSDKv3/RSDKv4 Animation Files|*.ani|RSDKv2 Animation Files|*.ani|RSDKv1 Animation Files|*.ani";
+            fd.Filter = "RSDKv5 Animation Files|*.bin|RSDKv3/RSDKv4 Animation Files|*.ani|RSDKv2 Animation Files|*.ani|RSDKv1 (2007 ver) Animation Files|*.ani|RSDKv1 (2006 DC ver) Animation Files|*.ani";
             if (fd.ShowDialog() == true)
             {
 
@@ -53,7 +53,7 @@ namespace AnimationEditor
         {
             var fd = new SaveFileDialog();
             fd.DefaultExt = "*.bin";
-            fd.Filter = "RSDKv5 Animation Files|*.bin|RSDKv3 and RSDKv4 Animation Files|*.ani|RSDKv2 Animation Files|*.ani|RSDKv1 Animation Files|*.ani";
+            fd.Filter = "RSDKv5 Animation Files|*.bin|RSDKv3 and RSDKv4 Animation Files|*.ani|RSDKv2 Animation Files|*.ani|RSDKv1 (2007 ver) Animation Files|*.ani|RSDKv1 (2006 DC ver) Animation Files|*.ani";
             if (fd.ShowDialog() == true)
             {
                 ViewModel.FileSave(fd.FileName);
@@ -279,7 +279,7 @@ namespace AnimationEditor
                     }
                     else if (!ViewModel.ChangeCurrentAnimationName(dialog.Text))
                     {
-                        MessageBox.Show("An animation with the name {dialog.Name} already exists.\nPlease specify another name.",
+                        MessageBox.Show($"An animation with the name {dialog.Name} already exists.\nPlease specify another name.",
                             "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
@@ -311,6 +311,37 @@ namespace AnimationEditor
         private void FramesList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             //Frame Index Changing Goes Here
+        }
+
+        //
+        private void SpriteFrameMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new SaveFileDialog();
+            dialog.DefaultExt = "*.txt";
+            dialog.Filter = "Text Files|*.txt";
+
+            if (dialog.ShowDialog() == true)
+            {
+                if (string.IsNullOrWhiteSpace(dialog.FileName))
+                {
+                    MessageBox.Show("You have specified an empty file name.",
+                        "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else 
+                {
+                    if (File.Exists(dialog.FileName))
+                        File.WriteAllText(dialog.FileName, string.Empty);
+                    StreamWriter writer = new StreamWriter(File.OpenWrite(dialog.FileName));
+                    for (int i = 0; i < ViewModel.AnimationFrames.Count; ++i)
+                    {
+                        writer.WriteLine($"\t// Frame {i}");
+                        writer.WriteLine($"\tSpriteFrame({ViewModel.AnimationFrames[i].Frame.CenterX}, {ViewModel.AnimationFrames[i].Frame.CenterY}, {ViewModel.AnimationFrames[i].Frame.Width}, {ViewModel.AnimationFrames[i].Frame.Height}, {ViewModel.AnimationFrames[i].Frame.X}, {ViewModel.AnimationFrames[i].Frame.Y})");
+                    }
+                    writer.Flush();
+
+                    MessageBox.Show($"SpriteFrames have been exported to '{dialog.FileName}'.", "Notice", MessageBoxButton.OK);
+                }
+            }
         }
     }
 }

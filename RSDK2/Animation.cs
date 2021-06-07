@@ -117,7 +117,7 @@ namespace RSDK2
                 }
             }
 
-            int spriteSheetsCount = 3; //always 3
+            int spriteSheetsCount = 4; //always 4
 
             SpriteSheets = new List<string>(spriteSheetsCount);
 
@@ -139,15 +139,11 @@ namespace RSDK2
                     }
                 }
 
-                string result = System.Text.Encoding.UTF8.GetString(byteBuf);
+                string sheet = System.Text.Encoding.UTF8.GetString(byteBuf);
 
-                SpriteSheets.Add(result);
-                Console.WriteLine(result);
+                if (!string.IsNullOrWhiteSpace(sheet))
+                    SpriteSheets.Add(sheet);
             }
-            byteBuf = null;
-
-            byte EndTexFlag = reader.ReadByte(); //Seems to tell the RSDK's reader when to stop reading textures???
-            if (BitFlipped) EndTexFlag ^= 255;
 
             // Read number of animations
             var animationsCount = reader.ReadByte();
@@ -171,14 +167,14 @@ namespace RSDK2
                     loopFrom ^= 255;
                 }
 
-                string name = "Sonic-Nexus Animation #" + (i + 1);
+                string name = "Sonic Nexus Animation #" + (i + 1);
                 try
                 {
                     name = AnimNames[i];
                 }
-                catch (Exception ex)
+                catch
                 {
-                    name = "Sonic-Nexus Animation #" + (i + 1);
+                    name = "Sonic Nexus Animation #" + (i + 1);
                 }
                 Animations.Add(new AnimationEntry(name, frameCount, animationSpeed,
                     loopFrom, 0, reader,BitFlipped));
@@ -227,15 +223,17 @@ namespace RSDK2
         {
             writer.Write(UnusedBytes);
 
-            var spriteSheetsCount = (byte)Math.Min(SpriteSheets.Count, byte.MaxValue);
-
-            for (int i = 0; i < spriteSheetsCount; i++)
+            var spriteSheetsCount = (byte)Math.Min(SpriteSheets.Count, 4);
+            int s = 0;
+            for (; s < spriteSheetsCount; s++)
             {
-                var item = SpriteSheets[i];
+                var item = SpriteSheets[s];
                 writer.Write(StringEncoding.GetBytes(item));
             }
-
-            writer.Write((byte)0); //Write the "EndTexFlag" byte
+            for (; s < 4; s++) //write null sheets if applicable
+            {
+                writer.Write(StringEncoding.GetBytes(""));
+            }
 
             var animationsCount = (byte)Math.Min(Animations.Count, byte.MaxValue);
             writer.Write(animationsCount);

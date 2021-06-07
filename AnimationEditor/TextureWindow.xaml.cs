@@ -46,16 +46,25 @@ namespace AnimationEditor
             BasePath = basePath;
             MainViewModel = mainViewModel;
             DataContext = new TextureWindowViewModel(mainViewModel, BasePath);
-            //Check if Anim Version is for Retro Sonic, if so dont let the user change the amount of spritesheets, since there is always a hardcoded amount
+
+
+            ButtonRemove.IsEnabled = true;
+            ButtonAdd.IsEnabled = true;
             if (mainViewModel.LoadedAnimVer == 1)
             {
-                ButtonRemove.IsEnabled = false;
-                ButtonAdd.IsEnabled = false;
+                //Check if Anim Version is for Retro-Sonic, if so limit the amount of animations to 2 or 3 max
+                if (ViewModel.Textures.Count == (((RSDK1.Animation)mainViewModel.AnimationData).dcVer ? 0x2 : 0x3))
+                {
+                    ButtonAdd.IsEnabled = false;
+                }
             }
-            else if (mainViewModel.LoadedAnimVer >= 2)
+            else if (mainViewModel.LoadedAnimVer == 2)
             {
-                ButtonRemove.IsEnabled = true;
-                ButtonAdd.IsEnabled = true;
+                //Check if Anim Version is for Sonic Nexus, if so limit the amount of animations to 4 max
+                if (ViewModel.Textures.Count == 4)
+                {
+                    ButtonAdd.IsEnabled = false;
+                }
             }
         }
 
@@ -105,6 +114,16 @@ namespace AnimationEditor
                     {
                         ViewModel.AddTexture(fileName);
                         SelectedIndex = ViewModel.Count - 1;
+
+                        //Check if Anim Version is for Retro-Sonic, if so limit the amount of animations to 2 or 3 max
+                        if (ViewModel.Textures.Count == (((RSDK1.Animation)MainViewModel.AnimationData).dcVer ? 0x2 : 0x3))
+                        {
+                            ButtonAdd.IsEnabled = false;
+                        }
+                        else
+                        {
+                            ButtonAdd.IsEnabled = true;
+                        }
                     }
                 }
             }
@@ -117,6 +136,20 @@ namespace AnimationEditor
                     if (fileName != null)
                     {
                         ViewModel.AddTexture(fileName);
+
+                        if (MainViewModel.LoadedAnimVer == 2)
+                        {
+                            //Check if Anim Version is for Sonic Nexus, if so limit the amount of animations to 4 max
+                            if (ViewModel.Textures.Count == 4)
+                            {
+                                ButtonAdd.IsEnabled = false;
+                            }
+                            else
+                            {
+                                ButtonAdd.IsEnabled = true;
+                            }
+                        }
+
                         SelectedIndex = ViewModel.Count - 1;
                     }
                 }
@@ -146,6 +179,31 @@ namespace AnimationEditor
                 if (index >= ViewModel.Count)
                     index--;
                 SelectedIndex = index;
+            }
+
+            if (MainViewModel.LoadedAnimVer == 1)
+            {
+                //Check if Anim Version is for Retro-Sonic, if so limit the amount of animations to 2 or 3 max
+                if (ViewModel.Textures.Count == (((RSDK1.Animation)MainViewModel.AnimationData).dcVer ? 0x2 : 0x3))
+                {
+                    ButtonAdd.IsEnabled = false;
+                }
+                else
+                {
+                    ButtonAdd.IsEnabled = true;
+                }
+            }
+            else if (MainViewModel.LoadedAnimVer == 2)
+            {
+                //Check if Anim Version is for Sonic Nexus, if so limit the amount of animations to 4 max
+                if (ViewModel.Textures.Count == 4)
+                {
+                    ButtonAdd.IsEnabled = false;
+                }
+                else
+                {
+                    ButtonAdd.IsEnabled = true;
+                }
             }
         }
 
@@ -194,7 +252,7 @@ namespace AnimationEditor
                     {
                         File.Copy(filePath, outputPath);
                     }
-                    catch (Exception e)
+                    catch
                     {
                         //Log.Error(e.Message);
                         fileName = null;

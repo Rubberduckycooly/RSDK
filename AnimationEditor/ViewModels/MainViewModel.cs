@@ -540,21 +540,6 @@ namespace AnimationEditor.ViewModels
                     {
                         FileName = fileName;
 
-                        //Lazy way to check .ani filetype
-                        var tmpStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
-                        BinaryReader br = new BinaryReader(tmpStream);
-                        br.ReadByte();
-                        int TypeCheck2 = br.ReadByte();
-                        int TypeCheck = br.ReadByte();
-                        bool isRSDC = false;
-
-                        //All Animation Types Show up when any RSDK version except 5 is selected, so this is a check to make sure that
-                        //the program loads the right file type
-                        if (fi > 0)
-                        {
-                            if (TypeCheck == 30 && TypeCheck2 >= 0) { fi = 3; isRSDC = true; LoadedAnimVer = 1; }
-                        }
-
                         switch (fi)
                         {
                             case 0:
@@ -568,17 +553,25 @@ namespace AnimationEditor.ViewModels
                                 AnimationData = new RSDK3.Animation(reader);
                                 break;
                             case 2:
-                                PathMod = "..\\sprites";
-                                LoadedAnimVer = 2;
-                                bool bf = false;
-                                if (TypeCheck == 255 && TypeCheck2 == 255)
-                                    bf = true;
-                                AnimationData = new RSDK2.Animation(reader,bf);
-                                break;
+                                {
+                                    byte typeCheck = 0, typeCheck2 = 0;
+                                    PathMod = "..\\sprites";
+                                    LoadedAnimVer = 2;
+                                    bool bf = false;
+                                    if (typeCheck == 255 && typeCheck2 == 255)
+                                        bf = true;
+                                    AnimationData = new RSDK2.Animation(reader, bf);
+                                    break;
+                                }
                             case 3:
                                 PathMod = "";
                                 LoadedAnimVer = 1;
-                                AnimationData = new RSDK1.Animation(reader, isRSDC);
+                                AnimationData = new RSDK1.Animation(reader, false);
+                                break;
+                            case 4:
+                                PathMod = "";
+                                LoadedAnimVer = 1;
+                                AnimationData = new RSDK1.Animation(reader, true);
                                 break;
                             default:
                                 return false;

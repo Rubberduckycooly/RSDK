@@ -80,25 +80,23 @@ namespace RSDK1
 
         public IEnumerable<string> HitboxTypes => null;
 
-        public Animation(BinaryReader reader, bool RSDC)
+        public bool dcVer = false;
+
+        public Animation(BinaryReader reader, bool dcVer)
         {
+            this.dcVer = dcVer;
             reader.ReadByte(); //skip this byte, as it seems unused
             PlayerType = reader.ReadByte(); //Tells the engine what player is selected; It is 0 for sonic, 1 for tails & 2 for Knux, so maybe it specifies a player value?
             int spriteSheetsCount = 3;
-            if (RSDC) //The Dreamcast Demo of retro-sonic only had 2 spritesheets per animation...
-            {
+            if (dcVer)
                 spriteSheetsCount = 2;
-            }
-            else //But the PC demo has 3 spritesheets per animation! so we set that here!
-            {
+            else
                 spriteSheetsCount = 3;
-            }
             var animationsCount = reader.ReadByte();
 
-            SpriteSheets = new List<string>(spriteSheetsCount);
-
             byte[] byteBuf = null;
-
+            SpriteSheets = new List<string>();
+            SpriteSheets.Clear();
             for (int i = 0; i < spriteSheetsCount; i++)
             {
                 int sLen = reader.ReadByte();
@@ -106,10 +104,10 @@ namespace RSDK1
 
                 byteBuf = reader.ReadBytes(sLen);
 
-                string result = System.Text.Encoding.UTF8.GetString(byteBuf);
+                string sheet = System.Text.Encoding.UTF8.GetString(byteBuf);
 
-                SpriteSheets.Add(result);
-                Console.WriteLine(result);
+                if (!string.IsNullOrWhiteSpace(sheet))
+                    SpriteSheets.Add(sheet);
             }
             byteBuf = null;
 
@@ -136,7 +134,7 @@ namespace RSDK1
                 {
                     name = AnimNames[i];
                 }
-                catch (Exception ex)
+                catch
                 {
                     name = "Retro Sonic Animation #" + (i + 1);
                 }
@@ -185,11 +183,16 @@ namespace RSDK1
             var animationsCount = (byte)Math.Min(Animations.Count, byte.MaxValue);
             writer.Write(animationsCount);
 
-            var spriteSheetsCount = (byte)Math.Min(SpriteSheets.Count, byte.MaxValue);
-            for (int i = 0; i < spriteSheetsCount; i++)
+            var spriteSheetsCount = (byte)Math.Min(SpriteSheets.Count, dcVer ? 2 : 3);
+            int s = 0;
+            for (; s < spriteSheetsCount; s++)
             {
-                var item = SpriteSheets[i];
+                var item = SpriteSheets[s];
                 writer.Write(StringEncoding.GetBytes(item));
+            }
+            for (; s < (dcVer ? 2 : 3); s++)
+            {
+                writer.Write(StringEncoding.GetBytes(""));
             }
 
             for (int i = 0; i < animationsCount; i++)

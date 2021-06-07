@@ -19,6 +19,9 @@
                 <MenuItem x:Name="MenuViewHitbox" Header="_Hitbox manager" Click="MenuViewHitbox_Click"/>
                 <MenuItem x:Name="MenuViewTexture" Header="_Texture manager" Click="MenuViewTexture_Click"/>
             </MenuItem>
+            <MenuItem Header="_Tools" Height="29" Width="39" RenderTransformOrigin="0.5,0.5">
+                <MenuItem Header="Export SpriteFrames" HorizontalAlignment="Left" Height="29" Width="215" Margin="-4,0,-71,0" Click="SpriteFrameMenuItem_Click"/>
+            </MenuItem>
             <MenuItem Header="_Info">
                 <MenuItem x:Name="MenuInfoAbout" Header="_About" Click="MenuInfoAbout_Click"/>
             </MenuItem>
