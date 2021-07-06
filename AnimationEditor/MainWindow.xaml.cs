@@ -233,6 +233,32 @@ namespace AnimationEditor
             ViewModel.AnimationDown();
         }
 
+        private void ButtonRenameAnim_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.LoadedAnimVer >= 3)
+            {
+                var dialog = new SingleInputDialog()
+                {
+                    Text = ViewModel.SelectedAnimation.Name,
+                    Description = "Please select the name of the animation"
+                };
+
+                if (dialog.ShowDialog() == true)
+                {
+                    if (string.IsNullOrWhiteSpace(dialog.Text))
+                    {
+                        MessageBox.Show("You have specified an empty file name.",
+                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else if (!ViewModel.ChangeCurrentAnimationName(dialog.Text))
+                    {
+                        MessageBox.Show($"An animation with the name {dialog.Name} already exists.\nPlease specify another name.",
+                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+
         private void ButtonFrameLeft_Click(object sender, RoutedEventArgs e)
         {
             ViewModel.FrameLeft();

@@ -116,6 +116,8 @@ namespace AnimationEditor.ViewModels
                 _spriteService = new SpriteService(_animationData, basePath);
 
                 OnPropertyChanged(nameof(IsAnimationDataLoaded));
+                OnPropertyChanged(nameof(SelectedAnimationIndex));
+                OnPropertyChanged(nameof(AnimationCount));
                 OnPropertyChanged(nameof(Textures));
                 OnPropertyChanged(nameof(Animations));
                 OnPropertyChanged(nameof(HitboxEntries));
@@ -234,7 +236,6 @@ namespace AnimationEditor.ViewModels
                     AnimationFrames = null;
                 }
                 OnPropertyChanged(nameof(AnimationFrames));
-
                 OnPropertyChanged(nameof(IsAnimationSelected));
                 OnPropertyChanged(nameof(FramesCount));
                 OnPropertyChanged(nameof(Speed));
@@ -243,7 +244,21 @@ namespace AnimationEditor.ViewModels
             }
         }
 
-        public int SelectedAnimationIndex { get; set; }
+        public int AnimationCount => Animations?.Count() ?? 0;
+
+        private int _selectedAnimationIndex { get; set; }
+        public int SelectedAnimationIndex
+        {
+            get => _selectedAnimationIndex;
+            set
+            {
+                if (value >= 0)
+                {
+                    _selectedAnimationIndex = value;
+                    OnPropertyChanged(nameof(SelectedAnimationIndex));
+                }
+            }
+        }
 
         public bool IsFrameSelected => SelectedFrame != null && SelectedAnimation?.GetFrames().Count() > 0;
 
@@ -574,13 +589,13 @@ namespace AnimationEditor.ViewModels
                             }
                             return true;
                         }
-                        catch
+                        catch (Exception e)
                         {
                             FileName = "";
                             PathMod = "..";
                             LoadedAnimVer = 5;
                             AnimationData = new RSDK5.Animation();
-                            MessageBox.Show("Error Opening Animation File!", "RSDK Animation Editor");
+                            MessageBox.Show($"Error Opening Animation File!\nError: {e.Message}", "RSDK Animation Editor");
                             return false;
                         }
                     }
@@ -819,12 +834,12 @@ namespace AnimationEditor.ViewModels
                 AnimationData = AnimationData; // world's dumbest hack, gets all "onXChanged" events to call
                 return true;
             }
-            catch
+            catch (Exception e)
             {
                 FileName = "";
                 LoadedAnimVer = 5;
                 AnimationData = new RSDK5.Animation();
-                MessageBox.Show("Error Importing Json File!", "RSDK Animation Editor");
+                MessageBox.Show($"Error Importing Json File!\nError: {e.Message}", "RSDK Animation Editor");
                 return false;
             }
         }
@@ -1085,6 +1100,7 @@ namespace AnimationEditor.ViewModels
         {
             _animationData.Factory(out IAnimationEntry o);
             Animations.Add(o);
+            OnPropertyChanged(nameof(AnimationCount));
         }
         public void AnimationUp()
         {
@@ -1097,6 +1113,7 @@ namespace AnimationEditor.ViewModels
                 Animations.Insert(index - 1, anim);
                 Animations.RemoveAt(index + 1);
                 SelectedAnimationIndex = index - 1;
+                OnPropertyChanged(nameof(SelectedAnimationIndex));
                 SelectedAnimation = anim;
             }
         }
@@ -1112,6 +1129,7 @@ namespace AnimationEditor.ViewModels
                 Animations.Insert(index + 2, anim);
                 Animations.RemoveAt(index);
                 SelectedAnimationIndex = index + 1;
+                OnPropertyChanged(nameof(SelectedAnimationIndex));
                 SelectedAnimation = anim;
             }
         }
@@ -1120,12 +1138,16 @@ namespace AnimationEditor.ViewModels
         {
             var selectedAnimation = SelectedAnimation;
             if (selectedAnimation != null)
+            {
                 Animations.Add(selectedAnimation.Clone() as IAnimationEntry);
+                OnPropertyChanged(nameof(AnimationCount));
+            }
         }
 
         public void AnimationRemove()
         {
             Animations.Remove(SelectedAnimation);
+            OnPropertyChanged(nameof(AnimationCount));
         }
 
         public void AnimationImport(string fileName)

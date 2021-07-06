@@ -129,6 +129,15 @@
                                 </Path>
                             </Canvas>
                         </Button>
+
+                        <Button BorderThickness="0" Background="Transparent" Click="ButtonRenameAnim_Click">
+                            <Image Width="16" Source="{StaticResource EditTitleString_16x}"/>
+                            <Button.ToolTip>
+                                <StackPanel>
+                                    <Label>Rename an animation</Label>
+                                </StackPanel>
+                            </Button.ToolTip>
+                        </Button>
                     </ToolBarPanel>
                     <ListBox x:Name="List" ItemsSource="{Binding Animations}" DisplayMemberPath="Name"
                          SelectedItem="{Binding SelectedAnimation, Mode=OneWayToSource}"
@@ -354,9 +363,15 @@
                         </ComboBox>
 
                     </Grid>
+                    <TextBlock x:Name="curAnim">
+                                <Run Text="Current animation "/>
+                                <Run Text="{Binding SelectedAnimationIndex, Mode=OneWay}"/>
+                                <Run Text="- Total "/>
+                                <Run Text="{Binding AnimationCount, Mode=OneWay}"/>
+                    </TextBlock>
                     <GroupBox IsEnabled="{Binding IsNotRunning}">
                         <GroupBox.Header>
-                            <TextBlock>
+                            <TextBlock x:Name="curFrame">
                                 <Run Text="Current frame "/>
                                 <Run Text="{Binding SelectedFrameIndex, Mode=OneWay}"/>
                                 <Run Text="- Total "/>

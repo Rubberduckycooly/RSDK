@@ -158,9 +158,26 @@ namespace AnimationEditor.Services
             Timer = new Timer(1);
             Timer.Elapsed += Timer_Elapsed;
             Stopwatch = new Stopwatch();
-            
-            _dicAnimations = AnimationData.GetAnimations()
-                .ToDictionary(x => x.Name, x => x);
+
+            var list = AnimationData.GetAnimations().ToList();
+            var names = new List<string>();
+            var cnts = new List<int>();
+            for (int i = 0; i < list.Count; ++i)
+            {
+                if (!names.Contains(list[i].Name))
+                {
+                    names.Add(list[i].Name);
+                    cnts.Add(1);
+                }
+                else
+                {
+                    int index = names.IndexOf(list[i].Name);
+                    cnts[index]++;
+                    list[i].Name += $" ({cnts[index]})";
+                }
+            }
+
+            _dicAnimations = list.ToDictionary(x => x.Name, x => x);
 
             Timer.Enabled = false;
         }
