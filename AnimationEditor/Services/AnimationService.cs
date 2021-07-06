@@ -164,17 +164,14 @@ namespace AnimationEditor.Services
             var cnts = new List<int>();
             for (int i = 0; i < list.Count; ++i)
             {
-                if (!names.Contains(list[i].Name))
-                {
-                    names.Add(list[i].Name);
-                    cnts.Add(1);
-                }
-                else
+                if (names.Contains(list[i].Name))
                 {
                     int index = names.IndexOf(list[i].Name);
                     cnts[index]++;
                     list[i].Name += $" ({cnts[index]})";
                 }
+                names.Add(list[i].Name);
+                cnts.Add(1);
             }
 
             _dicAnimations = list.ToDictionary(x => x.Name, x => x);
