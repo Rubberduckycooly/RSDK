@@ -25,7 +25,7 @@
             <Separator/>
             <TextBlock Text="Additional fixes by:"/>
             <TextBlock Text="thesupersonic16"/>
-            <TextBlock Text="More Fixes and RSDKvRS and RSDKv1 Support by:" Width="298"/>
+            <TextBlock Text="More Fixes, RSDKv1 and RSDKv2 Support by:"/>
             <TextBlock Text="Rubberduckycooly"/>
             <TextBlock><Hyperlink NavigateUri="https://github.com/Rubberduckycooly/RSDK"><Run Text="https://github.com/Rubberduckycooly/RSDK"/></Hyperlink></TextBlock>
         </StackPanel>

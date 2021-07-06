@@ -51,7 +51,7 @@ namespace RSDK5
 
         public int CenterY { get; set; }
 
-        public Hitbox[] Hitboxes { get; private set; }
+        public Hitbox[] Hitboxes { get; set; }
 
         public Frame(int collisionBoxesCount = 0)
         {
@@ -71,7 +71,7 @@ namespace RSDK5
 
         public IHitbox GetHitbox(int index)
         {
-            if (Hitboxes.Length >= 0 && index < Hitboxes.Length)
+            if (Hitboxes.Length >= 0 && index < Hitboxes.Length && index >= 0)
                 return Hitboxes[index];
             else
                 return null;
@@ -118,10 +118,10 @@ namespace RSDK5
             CollisionBox = 0;
             Duration = reader.ReadInt16();
             Id = reader.ReadUInt16();
-            X = reader.ReadInt16();
-            Y = reader.ReadInt16();
-            Width = reader.ReadInt16();
-            Height = reader.ReadInt16();
+            X = reader.ReadUInt16();
+            Y = reader.ReadUInt16();
+            Width = reader.ReadUInt16();
+            Height = reader.ReadUInt16();
             CenterX = reader.ReadInt16();
             CenterY = reader.ReadInt16();
 
@@ -137,10 +137,10 @@ namespace RSDK5
             writer.Write((byte)SpriteSheet);
             writer.Write((short)Duration);
             writer.Write((ushort)Id);
-            writer.Write((short)X);
-            writer.Write((short)Y);
-            writer.Write((short)Width);
-            writer.Write((short)Height);
+            writer.Write((ushort)X);
+            writer.Write((ushort)Y);
+            writer.Write((ushort)Width);
+            writer.Write((ushort)Height);
             writer.Write((short)CenterX);
             writer.Write((short)CenterY);
             foreach (var hb in Hitboxes)

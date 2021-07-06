@@ -83,7 +83,9 @@ namespace RSDK
     public interface IHitboxEntry
     {
         int Count { get; }
-        IHitbox GetHitbox(int index);
+        IHitbox GetHitbox(int index); 
+        IEnumerable<IHitbox> GetHitboxes();
+        void SetHitboxes(IEnumerable<IHitbox> hitboxes);
     }
 
     public interface IAnimation : ISaveChanges

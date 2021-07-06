@@ -47,20 +47,17 @@ namespace AnimationEditor.Services
                     string ext = Path.GetExtension(fileName);
                     if (ext == ".gif")
                     {
-                    var decoder = new GifBitmapDecoder(fStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-                    return decoder.Frames.FirstOrDefault();
+                        var decoder = new GifBitmapDecoder(fStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                        return decoder.Frames.FirstOrDefault();
                     }
-
-                    if (ext == ".bmp")
+                    else if (ext == ".bmp")
                     {
                         var decoder = BitmapDecoder.Create(fStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                         return decoder.Frames.FirstOrDefault();
                     }
-
-                    if (ext == ".png") //Because why not?
+                    else
                     {
-                        var decoder = new PngBitmapDecoder(fStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-                        return decoder.Frames.FirstOrDefault();
+                        //Log.Warning($"Texture extension {ext} not valid.");
                     }
                 }
             }

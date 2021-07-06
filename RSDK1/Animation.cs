@@ -39,7 +39,7 @@ namespace RSDK1
             "Walking",
             "Running",
             "Skidding",
-            "SuperPeelOut",
+            "Super Peel Out",
             "Spin Dash",
             "Jumping",
             "Bouncing",
@@ -55,17 +55,17 @@ namespace RSDK1
             "Sliding",
             "Hanging",
             "Dropping",
-            "FinishPose",
-            "Cork Screw",
+            "Finish Pose",
+            "CorkScrew",
             "Retro Sonic Animation #26",
             "Retro Sonic Animation #27",
             "Retro Sonic Animation #28",
             "Retro Sonic Animation #29",
             "Retro Sonic Animation #30",
-            "BonusSpin",
-            "SpecialStop",
-            "SpecialWalk",
-            "SpecialJump",
+            "Bonus Spin",
+            "Special Stop",
+            "Special Walk",
+            "Special Jump",
         };
 
         public int Version => 1;
@@ -78,38 +78,28 @@ namespace RSDK1
 
         public List<HitboxEntry> Hitboxes { get; }
 
-        public IEnumerable<string> HitboxTypes => null;
+        public IEnumerable<string> HitboxTypes { get; }
 
         public bool dcVer = false;
+
+        public Animation() { SpriteSheets = new List<string>(); Animations = new List<AnimationEntry>(); Hitboxes = new List<HitboxEntry>(); HitboxTypes = new List<string>(); }
 
         public Animation(BinaryReader reader, bool dcVer)
         {
             this.dcVer = dcVer;
             reader.ReadByte(); //skip this byte, as it seems unused
-            PlayerType = reader.ReadByte(); //Tells the engine what player is selected; It is 0 for sonic, 1 for tails & 2 for Knux, so maybe it specifies a player value?
-            int spriteSheetsCount = 3;
-            if (dcVer)
-                spriteSheetsCount = 2;
-            else
-                spriteSheetsCount = 3;
-            var animationsCount = reader.ReadByte();
+            PlayerType = reader.ReadByte();
+            int spriteSheetsCount = dcVer ? 2 : 3;
+            int animationsCount = reader.ReadByte();
 
-            byte[] byteBuf = null;
             SpriteSheets = new List<string>();
-            SpriteSheets.Clear();
             for (int i = 0; i < spriteSheetsCount; i++)
             {
-                int sLen = reader.ReadByte();
-                byteBuf = new byte[sLen];
-
-                byteBuf = reader.ReadBytes(sLen);
-
-                string sheet = System.Text.Encoding.UTF8.GetString(byteBuf);
+                string sheet = System.Text.Encoding.UTF8.GetString(reader.ReadBytes(reader.ReadByte()));
 
                 if (!string.IsNullOrWhiteSpace(sheet))
                     SpriteSheets.Add(sheet);
             }
-            byteBuf = null;
 
             // Read number of animations		
             Animations = new List<AnimationEntry>(animationsCount);
@@ -140,8 +130,8 @@ namespace RSDK1
                 }
                 Animations.Add(new AnimationEntry(name, frameCount, animationSpeed,
                     loopFrom, false, false, reader));
-                }
             }
+        }
 
         public void Factory(out IAnimationEntry o) { o = new AnimationEntry(); }
         public void Factory(out IFrame o) { o = new Frame(); }
@@ -163,11 +153,11 @@ namespace RSDK1
         public IEnumerable<IHitboxEntry> GetHitboxes()
         {
             //return Hitboxes.Select(x => (IHitboxEntry)x);
-            return null;
+            return new List<HitboxEntry>();
         }
 
         public void SetHitboxes(IEnumerable<IHitboxEntry> hitboxes)
-        {           
+        {
             /*Hitboxes.Clear();
             Hitboxes.AddRange(hitboxes
                 .Select(x => x as HitboxEntry)
@@ -187,8 +177,7 @@ namespace RSDK1
             int s = 0;
             for (; s < spriteSheetsCount; s++)
             {
-                var item = SpriteSheets[s];
-                writer.Write(StringEncoding.GetBytes(item));
+                writer.Write(StringEncoding.GetBytes(SpriteSheets[s]));
             }
             for (; s < (dcVer ? 2 : 3); s++)
             {

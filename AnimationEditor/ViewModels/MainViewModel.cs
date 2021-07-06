@@ -11,8 +11,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
+using Newtonsoft.Json;
+
 namespace AnimationEditor.ViewModels
-{ 
+{
     public class MainViewModel : Xe.Tools.Wpf.BaseNotifyPropertyChanged
     {
         private class DummyHitbox : IHitbox
@@ -69,7 +71,7 @@ namespace AnimationEditor.ViewModels
         public readonly string TITLE = $"RSDK Animation Editor v{Assembly.GetExecutingAssembly().GetName().Version} ({((AssemblyCompanyAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCompanyAttribute), true)[0]).Company})";
 
         public string Title => string.IsNullOrEmpty(FileName) ? TITLE : $"{TITLE} - {Path.GetFileName(FileName)}";
-        
+
         public ObservableCollection<string> Textures { get; private set; }
 
         public ObservableCollection<IAnimationEntry> Animations { get; private set; }
@@ -80,26 +82,32 @@ namespace AnimationEditor.ViewModels
             set
             {
                 _animationData = value;
-                var basePath = Path.GetDirectoryName(_fileName);
+                var basePath = _fileName != "" ? Path.GetDirectoryName(_fileName) : "";
                 basePath = Path.Combine(basePath, PathMod);
 
                 Textures = new ObservableCollection<string>(_animationData.SpriteSheets);
                 Animations = new ObservableCollection<IAnimationEntry>(_animationData.GetAnimations());
-                IsHitboxV3 = _animationData.HitboxTypes == null;
-                IsHitboxV5 = !IsHitboxV3;
+                bool IsHitboxV1 = LoadedAnimVer == 1;
+                IsHitboxV3 = LoadedAnimVer == 3 || LoadedAnimVer == 2;
+                IsHitboxV5 = LoadedAnimVer == 5;
                 if (IsHitboxV3)
                 {
                     if (LoadedAnimVer == 3 || LoadedAnimVer == 2)
                     {
-                    HitboxEntries = new ObservableCollection<IHitboxEntry>(_animationData.GetHitboxes());
-                    HitboxItems = HitboxEntries != null ? new ObservableCollection<string>(
-                        HitboxEntries.Select(x => GetHitboxEntryString(x)))
-                        : new ObservableCollection<string>();
+                        HitboxEntries = new ObservableCollection<IHitboxEntry>(_animationData.GetHitboxes());
+                        HitboxItems = HitboxEntries != null ? new ObservableCollection<string>(
+                            HitboxEntries.Select(x => GetHitboxEntryString(x)))
+                            : new ObservableCollection<string>();
                     }
                 }
                 else if (IsHitboxV5)
                 {
                     HitboxTypes = new ObservableCollection<string>(_animationData.HitboxTypes);
+                }
+                else if (IsHitboxV1) //hacky
+                {
+                    IsHitboxV5 = true;
+                    HitboxTypes = new ObservableCollection<string>(new List<string>() { "Hitbox" });
                 }
                 ValidateHitboxVisibility();
 
@@ -156,13 +164,19 @@ namespace AnimationEditor.ViewModels
             get => _zoom;
             set
             {
-                _zoom = Math.Max(Math.Min(value, 16), 0.25);
+                _zoom = Math.Max(Math.Min(value, 24), 0.125);
                 OnPropertyChanged();
                 InvalidateCanvas();
             }
         }
 
-        public BitmapSource Sprite => _spriteService?[SelectedFrameTexture, _animService.CurrentFrame];
+        public BitmapSource Sprite
+        {
+            get
+            {
+                return _spriteService?[SelectedFrameTexture, _animService.CurrentFrame];
+            }
+        }
 
         public double SpriteLeft => ViewWidth / 2.0 + _animService?.CurrentFrame?.CenterX ?? 0;
         public double SpriteTop => ViewHeight / 2.0 + _animService?.CurrentFrame?.CenterY ?? 0;
@@ -249,8 +263,21 @@ namespace AnimationEditor.ViewModels
 
         public int Flags
         {
-            get => SelectedAnimation?.Flags ?? 0;
-            set => SelectedAnimation.Flags = value;
+            get
+            {
+                if ((AnimationData?.Version ?? 0) == 1)
+                    return AnimationData?.PlayerType ?? 0;
+                else
+                    return SelectedAnimation?.Flags ?? 0;
+            }
+
+            set
+            {
+                if ((AnimationData?.Version ?? 0) == 1)
+                    AnimationData.PlayerType = value;
+                else if (SelectedAnimation != null)
+                    SelectedAnimation.Flags = value;
+            }
         }
 
         #endregion
@@ -410,23 +437,6 @@ namespace AnimationEditor.ViewModels
 
         #region Hitbox
 
-        #region Hitbox v1
-        private bool _isHitboxV1;
-        public bool IsHitboxV1
-        {
-            get => _isHitboxV1;
-            set
-            {
-                _isHitboxV1 = value;
-                ValidateHitboxVisibility();
-            }
-        }
-        public bool IsNotHitboxV1 => !IsHitboxV1;
-        public Visibility HitboxV1Visibility => IsHitboxV1 ? Visibility.Visible : Visibility.Collapsed;
-        public ObservableCollection<IHitboxEntry> HitboxEntriesV1 { get; private set; }
-        public ObservableCollection<string> HitboxItemsV1 { get; private set; }
-        #endregion
-
         #region Hitbox v3
         private bool _isHitboxV3;
         public bool IsHitboxV3
@@ -473,12 +483,6 @@ namespace AnimationEditor.ViewModels
 
         private void ValidateHitboxVisibility()
         {
-            OnPropertyChanged(nameof(IsHitboxV1));
-            OnPropertyChanged(nameof(IsNotHitboxV1));
-            OnPropertyChanged(nameof(HitboxV1Visibility));
-            OnPropertyChanged(nameof(HitboxEntriesV1));
-            OnPropertyChanged(nameof(HitboxItemsV1));
-
             OnPropertyChanged(nameof(IsHitboxV3));
             OnPropertyChanged(nameof(IsNotHitboxV3));
             OnPropertyChanged(nameof(HitboxV3Visibility));
@@ -494,7 +498,7 @@ namespace AnimationEditor.ViewModels
 
         #region Methods
 
-        private void InvalidateCanvas()
+        public void InvalidateCanvas()
         {
             OnPropertyChanged(nameof(Sprite));
             OnPropertyChanged(nameof(SpriteLeft));
@@ -538,47 +542,49 @@ namespace AnimationEditor.ViewModels
                 {
                     using (var reader = new BinaryReader(fStream))
                     {
-                        FileName = fileName;
-
-                        switch (fi)
+                        try
                         {
-                            case 0:
-                                PathMod = "..";
-                                LoadedAnimVer = 5;
-                                AnimationData = new RSDK5.Animation(reader);
-                                return false;
-                            case 1:
-                                PathMod = "..\\sprites";
-                                LoadedAnimVer = 3;
-                                AnimationData = new RSDK3.Animation(reader);
-                                break;
-                            case 2:
-                                {
-                                    byte typeCheck = 0, typeCheck2 = 0;
+                            FileName = fileName;
+
+                            switch (fi)
+                            {
+                                case 0: //Sonic Mania (Plus)
+                                    PathMod = "..";
+                                    LoadedAnimVer = 5;
+                                    AnimationData = new RSDK5.Animation(reader);
+                                    break;
+                                case 1: //Sonic 1, Sonic 2, Sonic CD
+                                    PathMod = "..\\sprites";
+                                    LoadedAnimVer = 3;
+                                    AnimationData = new RSDK3.Animation(reader);
+                                    break;
+                                case 2: //Sonic Nexus
                                     PathMod = "..\\sprites";
                                     LoadedAnimVer = 2;
-                                    bool bf = false;
-                                    if (typeCheck == 255 && typeCheck2 == 255)
-                                        bf = true;
-                                    AnimationData = new RSDK2.Animation(reader, bf);
+                                    AnimationData = new RSDK2.Animation(reader);
                                     break;
-                                }
-                            case 3:
-                                PathMod = "";
-                                LoadedAnimVer = 1;
-                                AnimationData = new RSDK1.Animation(reader, false);
-                                break;
-                            case 4:
-                                PathMod = "";
-                                LoadedAnimVer = 1;
-                                AnimationData = new RSDK1.Animation(reader, true);
-                                break;
-                            default:
-                                return false;
+                                case 3: //Retro-Sonic
+                                case 4: //Retro-Sonic (Dreamcast)
+                                    PathMod = "";
+                                    LoadedAnimVer = 1;
+                                    AnimationData = new RSDK1.Animation(reader, fi == 4);
+                                    break;
+                                default:
+                                    return false;
+                            }
+                            return true;
+                        }
+                        catch
+                        {
+                            FileName = "";
+                            PathMod = "..";
+                            LoadedAnimVer = 5;
+                            AnimationData = new RSDK5.Animation();
+                            MessageBox.Show("Error Opening Animation File!", "RSDK Animation Editor");
+                            return false;
                         }
                     }
                 }
-                return true;
             }
             return false;
         }
@@ -598,6 +604,481 @@ namespace AnimationEditor.ViewModels
                 }
             }
             FileName = fileName;
+        }
+
+        public bool Import(string fileName)
+        {
+            if (!File.Exists(fileName)) return false;
+
+            FileName = fileName;
+
+            try
+            {
+                using (StreamReader reader = new StreamReader(File.OpenRead(fileName)))
+                {
+                    var parsedJson = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.Linq.JToken.ReadFrom(new JsonTextReader(reader));
+
+                    LoadedAnimVer = (int)parsedJson["Anim Version"];
+
+                    switch (LoadedAnimVer)
+                    {
+                        case 5:
+                            PathMod = "..";
+                            AnimationData = new RSDK5.Animation();
+                            break;
+                        case 3:
+                            PathMod = "..\\sprites";
+                            AnimationData = new RSDK3.Animation();
+                            break;
+                        case 2:
+                            PathMod = "..\\sprites";
+                            AnimationData = new RSDK2.Animation();
+                            break;
+                        case 1:
+                            PathMod = "";
+                            AnimationData = new RSDK1.Animation();
+                            break;
+                        default:
+                            break;
+                    }
+
+                    //Player Type (v1 only)
+                    _animationData.PlayerType = (int)(parsedJson["Player Type"] == null ? 0 : parsedJson["Player Type"]);
+
+                    Newtonsoft.Json.Linq.JArray sheets = (Newtonsoft.Json.Linq.JArray)parsedJson["Sheets"];
+                    AnimationData.SpriteSheets.Clear();
+                    if (sheets != null)
+                    {
+                        for (int s = 0; s < sheets.Count; ++s)
+                        {
+                            AnimationData.SpriteSheets.Add((string)sheets[s]);
+                        }
+                    }
+
+                    //Hitbox Types (v5)
+                    Newtonsoft.Json.Linq.JArray hitboxTypes = (Newtonsoft.Json.Linq.JArray)parsedJson["Hitbox Types"];
+                    List<string> hitboxTypeList = AnimationData.HitboxTypes.ToList();
+                    hitboxTypeList.Clear();
+                    if (hitboxTypes != null)
+                    {
+                        for (int h = 0; h < hitboxTypes.Count; ++h)
+                        {
+                            hitboxTypeList.Add((string)hitboxTypes[h]);
+                        }
+                    }
+                    AnimationData.SetHitboxTypes(hitboxTypeList);
+
+                    //Hitboxes (v2, v3 & v4)
+                    Newtonsoft.Json.Linq.JArray hitboxes = (Newtonsoft.Json.Linq.JArray)parsedJson["Hitboxes"];
+                    List<IHitboxEntry> hitboxList = AnimationData.GetHitboxes().ToList();
+                    hitboxList.Clear();
+                    if (hitboxes != null)
+                    {
+                        for (int h = 0; h < hitboxes.Count; ++h)
+                        {
+                            Newtonsoft.Json.Linq.JArray entries = (Newtonsoft.Json.Linq.JArray)hitboxes[h]["Entries"];
+
+                            AnimationData.Factory(out IHitboxEntry hitbox);
+                            List<IHitbox> entryList = hitbox.GetHitboxes().ToList();
+                            entryList.Clear();
+                            if (entries != null)
+                            {
+                                for (int e = 0; e < entries.Count; ++e)
+                                {
+                                    RSDK3.Hitbox entry = new RSDK3.Hitbox();
+                                    entry.Left = (int)(entries[e]["Left"] == null ? 0 : entries[e]["Left"]);
+                                    entry.Top = (int)(entries[e]["Top"] == null ? 0 : entries[e]["Top"]);
+                                    entry.Right = (int)(entries[e]["Right"] == null ? 0 : entries[e]["Right"]);
+                                    entry.Bottom = (int)(entries[e]["Bottom"] == null ? 0 : entries[e]["Bottom"]);
+                                    entryList.Add((IHitbox)entry);
+                                }
+                            }
+                            hitbox.SetHitboxes(entryList);
+                            hitboxList.Add(hitbox);
+                        }
+                    }
+                    AnimationData.SetHitboxes(hitboxList);
+
+                    Newtonsoft.Json.Linq.JArray animations = (Newtonsoft.Json.Linq.JArray)parsedJson["Animations"];
+                    List<IAnimationEntry> animList = AnimationData.GetAnimations().ToList();
+                    animList.Clear();
+                    if (animations != null)
+                    {
+                        for (int a = 0; a < animations.Count; ++a)
+                        {
+                            AnimationData.Factory(out IAnimationEntry anim);
+
+                            anim.Name = (string)(animations[a]["Name"] == null ? $"Unnamed Animation {a + 1}" : animations[a]["Name"]);
+                            anim.Speed = (int)(animations[a]["Animation Speed"] == null ? 0 : animations[a]["Animation Speed"]);
+                            anim.Loop = (int)(animations[a]["Loop Index"] == null ? 0 : animations[a]["Loop Index"]);
+                            anim.Flags = (int)(animations[a]["Rotation Flags"] == null ? 0 : animations[a]["Rotation Flags"]);
+
+                            Newtonsoft.Json.Linq.JArray frames = (Newtonsoft.Json.Linq.JArray)animations[a]["Frames"];
+                            List<IFrame> frameList = anim.GetFrames().ToList();
+                            frameList.Clear();
+                            if (frames != null)
+                            {
+                                for (int f = 0; f < frames.Count; ++f)
+                                {
+                                    _animationData.Factory(out IFrame o);
+
+                                    o.SpriteSheet = (int)(frames[f]["SheetID"] == null ? 0 : frames[f]["SheetID"]);
+                                    o.CollisionBox = (int)(frames[f]["HitboxID"] == null ? 0 : frames[f]["HitboxID"]);
+                                    o.Id = (int)(frames[f]["ID"] == null ? 0 : frames[f]["ID"]);
+                                    o.Duration = (int)(frames[f]["Duration"] == null ? 256 : frames[f]["Duration"]);
+
+                                    if (frames[f]["Src"] != null)
+                                    {
+                                        o.X = (int)(frames[f]["Src"]["x"] == null ? 0 : frames[f]["Src"]["x"]);
+                                        o.Y = (int)(frames[f]["Src"]["y"] == null ? 0 : frames[f]["Src"]["y"]);
+                                    }
+                                    if (frames[f]["Size"] != null)
+                                    {
+                                        o.Width = (int)(frames[f]["Size"]["w"] == null ? 0 : frames[f]["Size"]["w"]);
+                                        o.Height = (int)(frames[f]["Size"]["h"] == null ? 0 : frames[f]["Size"]["h"]);
+                                    }
+                                    if (frames[f]["Pivot"] != null)
+                                    {
+                                        o.CenterX = (int)(frames[f]["Pivot"]["x"] == null ? 0 : frames[f]["Pivot"]["x"]);
+                                        o.CenterY = (int)(frames[f]["Pivot"]["y"] == null ? 0 : frames[f]["Pivot"]["y"]);
+                                    }
+
+                                    if (LoadedAnimVer == 5)
+                                    {
+                                        RSDK5.Frame frame = (RSDK5.Frame)o;
+                                        if (frames[f]["Hitboxes"] != null)
+                                        {
+                                            for (int i = 0; i < AnimationData.HitboxTypes.Count(); ++i)
+                                            {
+                                                if (frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)] != null)
+                                                {
+                                                    if (frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Left"] != null)
+                                                        frame.Hitboxes[i].Left = (int)frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Left"];
+                                                    else
+                                                        frame.Hitboxes[i].Left = 0;
+
+                                                    if (frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Top"] != null)
+                                                        frame.Hitboxes[i].Top = (int)frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Top"];
+                                                    else
+                                                        frame.Hitboxes[i].Top = 0;
+
+                                                    if (frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Right"] != null)
+                                                        frame.Hitboxes[i].Right = (int)frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Right"];
+                                                    else
+                                                        frame.Hitboxes[i].Right = 0;
+
+                                                    if (frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Bottom"] != null)
+                                                        frame.Hitboxes[i].Bottom = (int)frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Bottom"];
+                                                    else
+                                                        frame.Hitboxes[i].Bottom = 0;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else if (LoadedAnimVer == 1)
+                                    {
+                                        RSDK1.Frame frame = (RSDK1.Frame)o;
+                                        if (frames[f]["Hitboxes"] != null)
+                                        {
+                                            if (frames[f]["Hitboxes"]["Default"] != null)
+                                            {
+                                                if (frames[f]["Hitboxes"]["Default"]["Left"] != null)
+                                                    frame.Hitbox.Left = (int)frames[f]["Hitboxes"]["Default"]["Left"];
+                                                else
+                                                    frame.Hitbox.Left = 0;
+
+                                                if (frames[f]["Hitboxes"]["Default"]["Top"] != null)
+                                                    frame.Hitbox.Top = (int)frames[f]["Hitboxes"]["Default"]["Top"];
+                                                else
+                                                    frame.Hitbox.Top = 0;
+
+                                                if (frames[f]["Hitboxes"]["Default"]["Right"] != null)
+                                                    frame.Hitbox.Right = (int)frames[f]["Hitboxes"]["Default"]["Right"];
+                                                else
+                                                    frame.Hitbox.Right = 0;
+
+                                                if (frames[f]["Hitboxes"]["Default"]["Bottom"] != null)
+                                                    frame.Hitbox.Bottom = (int)frames[f]["Hitboxes"]["Default"]["Bottom"];
+                                                else
+                                                    frame.Hitbox.Bottom = 0;
+                                            }
+                                        }
+                                    }
+
+                                    frameList.Add(o);
+                                }
+                            }
+                            anim.SetFrames(frameList);
+
+                            animList.Add(anim);
+                        }
+                    }
+                    AnimationData.SetAnimations(animList);
+                }
+
+                AnimationData = AnimationData; // world's dumbest hack, gets all "onXChanged" events to call
+                return true;
+            }
+            catch
+            {
+                FileName = "";
+                LoadedAnimVer = 5;
+                AnimationData = new RSDK5.Animation();
+                MessageBox.Show("Error Importing Json File!", "RSDK Animation Editor");
+                return false;
+            }
+        }
+
+        public void Export(string fileName)
+        {
+            SaveChanges();
+
+            StringBuilder sb = new StringBuilder();
+            StringWriter sw = new StringWriter(sb);
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                writer.Formatting = Formatting.Indented;
+                writer.WriteStartObject();
+
+                writer.WritePropertyName("Anim Version");
+                writer.WriteValue(_animationData.Version);
+
+                if (LoadedAnimVer == 1)
+                {
+                    writer.WritePropertyName("Player Type");
+                    writer.WriteValue(_animationData.PlayerType);
+                }
+
+                if (_animationData.SpriteSheets.Count() > 0)
+                {
+                    writer.WritePropertyName("Sheets");
+                    writer.WriteStartArray();
+                    for (int h = 0; h < _animationData.SpriteSheets.Count(); ++h)
+                    {
+                        writer.WriteValue(_animationData.SpriteSheets.ElementAt(h));
+                    }
+                    writer.WriteEndArray();
+                }
+
+                if (LoadedAnimVer == 5)
+                {
+                    if (_animationData.HitboxTypes.Count() > 0)
+                    {
+                        writer.WritePropertyName("Hitbox Types");
+                        writer.WriteStartArray();
+                        for (int h = 0; h < _animationData.HitboxTypes.Count(); ++h)
+                        {
+                            writer.WriteValue(_animationData.HitboxTypes.ElementAt(h));
+                        }
+                        writer.WriteEndArray();
+                    }
+                }
+                else if (LoadedAnimVer == 1)
+                {
+                    writer.WritePropertyName("Hitbox Types");
+                    writer.WriteStartArray();
+                    writer.WriteValue("Default");
+                    writer.WriteEndArray();
+                }
+                else
+                {
+                    if (_animationData.GetHitboxes().Count() > 0)
+                    {
+                        if (Settings.Default.exportFullJson) {
+                            writer.WritePropertyName("Hitbox Types");
+                            writer.WriteStartArray();
+                            writer.WriteValue("Default");
+                            writer.WriteEndArray();
+                        }
+
+                        writer.WritePropertyName("Hitboxes");
+                        writer.WriteStartArray();
+                        for (int h = 0; h < _animationData.GetHitboxes().Count(); ++h)
+                        {
+                            writer.WriteStartObject();
+
+                            IHitboxEntry selectedHitbox = _animationData.GetHitboxes().ElementAt(h);
+                            if (selectedHitbox.Count > 0)
+                            {
+                                writer.WritePropertyName("Entries");
+                                writer.WriteStartArray();
+                                for (int e = 0; e < selectedHitbox.Count; ++e)
+                                {
+                                    writer.WriteStartObject();
+                                    writer.WritePropertyName("Left");
+                                    writer.WriteValue(selectedHitbox.GetHitbox(e).Left);
+                                    writer.WritePropertyName("Top");
+                                    writer.WriteValue(selectedHitbox.GetHitbox(e).Top);
+                                    writer.WritePropertyName("Right");
+                                    writer.WriteValue(selectedHitbox.GetHitbox(e).Right);
+                                    writer.WritePropertyName("Bottom");
+                                    writer.WriteValue(selectedHitbox.GetHitbox(e).Bottom);
+                                    writer.WriteEndObject();
+                                }
+                                writer.WriteEndArray();
+                            }
+                            writer.WriteEndObject();
+                        }
+                        writer.WriteEndArray();
+                    }
+                }
+
+                if (_animationData.GetAnimations().Count() > 0)
+                {
+                    writer.WritePropertyName("Animations");
+                    writer.WriteStartArray();
+                    for (int a = 0; a < _animationData.GetAnimations().Count(); ++a)
+                    {
+                        IAnimationEntry selectedAnimation = _animationData.GetAnimations().ElementAt(a);
+                        writer.WriteStartObject();
+                        writer.WritePropertyName("Name");
+                        writer.WriteValue(selectedAnimation.Name);
+                        writer.WritePropertyName("Animation Speed");
+                        writer.WriteValue(selectedAnimation.Speed);
+                        writer.WritePropertyName("Loop Index");
+                        writer.WriteValue(selectedAnimation.Loop);
+                        if (LoadedAnimVer >= 3)
+                        {
+                            writer.WritePropertyName("Rotation Flags");
+                            writer.WriteValue(selectedAnimation.Flags);
+                        }
+
+                        if (selectedAnimation.GetFrames().Count() > 0)
+                        {
+                            writer.WritePropertyName("Frames");
+                            writer.WriteStartArray();
+                            for (int f = 0; f < selectedAnimation.GetFrames().Count(); ++f)
+                            {
+                                IFrame selectedFrame = selectedAnimation.GetFrames().ElementAt(f);
+                                writer.WriteStartObject();
+
+                                writer.WritePropertyName("SheetID");
+                                writer.WriteValue(selectedFrame.SpriteSheet);
+                                if (LoadedAnimVer != 5 && LoadedAnimVer != 1)
+                                {
+                                    writer.WritePropertyName("HitboxID");
+                                    writer.WriteValue(selectedFrame.CollisionBox);
+                                }
+                                else if (LoadedAnimVer == 5)
+                                {
+                                    writer.WritePropertyName("ID");
+                                    writer.WriteValue(selectedFrame.Id);
+                                    writer.WritePropertyName("Duration");
+                                    writer.WriteValue(selectedFrame.Duration);
+                                }
+
+                                writer.WritePropertyName("Src");
+                                writer.WriteStartObject();
+                                writer.WritePropertyName("x");
+                                writer.WriteValue(selectedFrame.X);
+                                writer.WritePropertyName("y");
+                                writer.WriteValue(selectedFrame.Y);
+                                writer.WriteEndObject();
+
+                                writer.WritePropertyName("Size");
+                                writer.WriteStartObject();
+                                writer.WritePropertyName("w");
+                                writer.WriteValue(selectedFrame.Width);
+                                writer.WritePropertyName("h");
+                                writer.WriteValue(selectedFrame.Height);
+                                writer.WriteEndObject();
+
+                                writer.WritePropertyName("Pivot");
+                                writer.WriteStartObject();
+                                writer.WritePropertyName("x");
+                                writer.WriteValue(selectedFrame.CenterX);
+                                writer.WritePropertyName("y");
+                                writer.WriteValue(selectedFrame.CenterY);
+                                writer.WriteEndObject();
+
+                                if (LoadedAnimVer == 5)
+                                {
+                                    RSDK5.Frame frame = (RSDK5.Frame)selectedFrame;
+
+                                    if (frame.Hitboxes.Count() > 0)
+                                    {
+                                        writer.WritePropertyName("Hitboxes");
+                                        writer.WriteStartObject();
+                                        for (int i = 0; i < frame.Hitboxes.Count(); ++i)
+                                        {
+                                            writer.WritePropertyName(_animationData.HitboxTypes.ElementAt(i));
+                                            writer.WriteStartObject();
+                                            writer.WritePropertyName("Left");
+                                            writer.WriteValue(frame.Hitboxes[i].Left);
+                                            writer.WritePropertyName("Top");
+                                            writer.WriteValue(frame.Hitboxes[i].Top);
+                                            writer.WritePropertyName("Right");
+                                            writer.WriteValue(frame.Hitboxes[i].Right);
+                                            writer.WritePropertyName("Bottom");
+                                            writer.WriteValue(frame.Hitboxes[i].Bottom);
+                                            writer.WriteEndObject();
+                                        }
+                                        writer.WriteEndObject();
+                                    }
+                                }
+                                else if (LoadedAnimVer == 1)
+                                {
+                                    RSDK1.Frame frame = (RSDK1.Frame)selectedFrame;
+
+                                    writer.WritePropertyName("Hitboxes");
+                                    writer.WriteStartObject();
+                                    {
+                                        writer.WritePropertyName("Default");
+                                        writer.WriteStartObject();
+                                        writer.WritePropertyName("Left");
+                                        writer.WriteValue(frame.Hitbox.Left);
+                                        writer.WritePropertyName("Top");
+                                        writer.WriteValue(frame.Hitbox.Top);
+                                        writer.WritePropertyName("Right");
+                                        writer.WriteValue(frame.Hitbox.Right);
+                                        writer.WritePropertyName("Bottom");
+                                        writer.WriteValue(frame.Hitbox.Bottom);
+                                        writer.WriteEndObject();
+                                    }
+                                    writer.WriteEndObject();
+                                }
+                                else if (Settings.Default.exportFullJson)
+                                {
+                                    if (selectedFrame.CollisionBox < _animationData.GetHitboxes().Count() && selectedFrame.CollisionBox >= 0)
+                                    {
+                                        writer.WritePropertyName("Hitboxes");
+                                        writer.WriteStartObject();
+
+                                        List<IHitboxEntry> hitboxList = _animationData.GetHitboxes().ToList();
+                                        {
+                                            writer.WritePropertyName("Default");
+                                            writer.WriteStartObject();
+                                            writer.WritePropertyName("Left");
+                                            writer.WriteValue(hitboxList[selectedFrame.CollisionBox].GetHitbox(0).Left);
+                                            writer.WritePropertyName("Top");
+                                            writer.WriteValue(hitboxList[selectedFrame.CollisionBox].GetHitbox(0).Top);
+                                            writer.WritePropertyName("Right");
+                                            writer.WriteValue(hitboxList[selectedFrame.CollisionBox].GetHitbox(0).Right);
+                                            writer.WritePropertyName("Bottom");
+                                            writer.WriteValue(hitboxList[selectedFrame.CollisionBox].GetHitbox(0).Bottom);
+                                            writer.WriteEndObject();
+                                        }
+                                        writer.WriteEndObject();
+                                    }
+                                }
+
+                                writer.WriteEndObject();
+                            }
+                            writer.WriteEndArray();
+                        }
+                        writer.WriteEndObject();
+                    }
+                    writer.WriteEndArray();
+                }
+
+                writer.WriteEndObject();
+            }
+
+            if (!fileName.ToLower().EndsWith(".json"))
+                fileName += ".json";
+
+            File.WriteAllText(fileName, string.Empty);
+            File.WriteAllText(fileName, sb.ToString());
         }
 
         public void AnimationAdd()
@@ -651,14 +1132,115 @@ namespace AnimationEditor.ViewModels
         {
             if (!File.Exists(fileName)) return;
 
-            using (var fStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+            using (StreamReader reader = new StreamReader(File.OpenRead(fileName)))
             {
-                using (var reader = new BinaryReader(fStream))
+                var parsedJson = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.Linq.JToken.ReadFrom(new JsonTextReader(reader));
+
+                _animationData.Factory(out IAnimationEntry anim);
+
+                anim.Name = (string)(parsedJson["Name"] == null ? $"Unnamed Animation" : parsedJson["Name"]);
+                anim.Speed = (int)(parsedJson["Animation Speed"] == null ? 0 : parsedJson["Animation Speed"]);
+                anim.Loop = (int)(parsedJson["Loop Index"] == null ? 0 : parsedJson["Loop Index"]);
+                anim.Flags = (int)(parsedJson["Rotation Flags"] == null ? 0 : parsedJson["Rotation Flags"]);
+
+                Newtonsoft.Json.Linq.JArray frames = (Newtonsoft.Json.Linq.JArray)parsedJson["Frames"];
+                List<IFrame> frameList = anim.GetFrames().ToList();
+                frameList.Clear();
+                if (frames != null)
                 {
-                    _animationData.Factory(out IAnimationEntry o);
-                    o.Read(reader);
-                    Animations.Add(o);
+                    for (int f = 0; f < frames.Count; ++f)
+                    {
+                        _animationData.Factory(out IFrame o);
+
+                        o.SpriteSheet = (int)(frames[f]["SheetID"] == null ? 0 : frames[f]["SheetID"]);
+                        o.CollisionBox = (int)(frames[f]["HitboxID"] == null ? 0 : frames[f]["HitboxID"]);
+                        o.Id = (int)(frames[f]["ID"] == null ? 0 : frames[f]["ID"]);
+                        o.Duration = (int)(frames[f]["Duration"] == null ? 256 : frames[f]["Duration"]);
+
+                        if (frames[f]["Src"] != null)
+                        {
+                            o.X = (int)(frames[f]["Src"]["x"] == null ? 0 : frames[f]["Src"]["x"]);
+                            o.Y = (int)(frames[f]["Src"]["y"] == null ? 0 : frames[f]["Src"]["y"]);
+                        }
+                        if (frames[f]["Size"] != null)
+                        {
+                            o.Width = (int)(frames[f]["Size"]["w"] == null ? 0 : frames[f]["Size"]["w"]);
+                            o.Height = (int)(frames[f]["Size"]["h"] == null ? 0 : frames[f]["Size"]["h"]);
+                        }
+                        if (frames[f]["Pivot"] != null)
+                        {
+                            o.CenterX = (int)(frames[f]["Pivot"]["x"] == null ? 0 : frames[f]["Pivot"]["x"]);
+                            o.CenterY = (int)(frames[f]["Pivot"]["y"] == null ? 0 : frames[f]["Pivot"]["y"]);
+                        }
+
+                        if (LoadedAnimVer == 5)
+                        {
+                            RSDK5.Frame frame = (RSDK5.Frame)o;
+                            if (frames[f]["Hitboxes"] != null)
+                            {
+                                for (int i = 0; i < AnimationData.HitboxTypes.Count(); ++i)
+                                {
+                                    if (frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)] != null)
+                                    {
+                                        if (frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Left"] != null)
+                                            frame.Hitboxes[i].Left = (int)frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Left"];
+                                        else
+                                            frame.Hitboxes[i].Left = 0;
+
+                                        if (frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Top"] != null)
+                                            frame.Hitboxes[i].Top = (int)frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Top"];
+                                        else
+                                            frame.Hitboxes[i].Top = 0;
+
+                                        if (frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Right"] != null)
+                                            frame.Hitboxes[i].Right = (int)frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Right"];
+                                        else
+                                            frame.Hitboxes[i].Right = 0;
+
+                                        if (frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Bottom"] != null)
+                                            frame.Hitboxes[i].Bottom = (int)frames[f]["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Bottom"];
+                                        else
+                                            frame.Hitboxes[i].Bottom = 0;
+                                    }
+                                }
+                            }
+                        }
+                        else if (LoadedAnimVer == 1)
+                        {
+                            RSDK1.Frame frame = (RSDK1.Frame)o;
+                            if (frames[f]["Hitboxes"] != null)
+                            {
+                                if (frames[f]["Hitboxes"]["Default"] != null)
+                                {
+                                    if (frames[f]["Hitboxes"]["Default"]["Left"] != null)
+                                        frame.Hitbox.Left = (int)frames[f]["Hitboxes"]["Default"]["Left"];
+                                    else
+                                        frame.Hitbox.Left = 0;
+
+                                    if (frames[f]["Hitboxes"]["Default"]["Top"] != null)
+                                        frame.Hitbox.Top = (int)frames[f]["Hitboxes"]["Default"]["Top"];
+                                    else
+                                        frame.Hitbox.Top = 0;
+
+                                    if (frames[f]["Hitboxes"]["Default"]["Right"] != null)
+                                        frame.Hitbox.Right = (int)frames[f]["Hitboxes"]["Default"]["Right"];
+                                    else
+                                        frame.Hitbox.Right = 0;
+
+                                    if (frames[f]["Hitboxes"]["Default"]["Bottom"] != null)
+                                        frame.Hitbox.Bottom = (int)frames[f]["Hitboxes"]["Default"]["Bottom"];
+                                    else
+                                        frame.Hitbox.Bottom = 0;
+                                }
+                            }
+                        }
+
+                        frameList.Add(o);
+                    }
                 }
+                anim.SetFrames(frameList);
+
+                Animations.Add(anim);
             }
         }
 
@@ -667,13 +1249,157 @@ namespace AnimationEditor.ViewModels
             var selectedAnimation = SelectedAnimation;
             if (selectedAnimation == null) return;
 
-            using (var fStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read))
+            StringBuilder sb = new StringBuilder();
+            StringWriter sw = new StringWriter(sb);
+            using (JsonWriter writer = new JsonTextWriter(sw))
             {
-                using (var writer = new BinaryWriter(fStream))
+                writer.Formatting = Formatting.Indented;
+
+                writer.WriteStartObject();
+                writer.WritePropertyName("Name");
+                writer.WriteValue(selectedAnimation.Name);
+                writer.WritePropertyName("Animation Speed");
+                writer.WriteValue(selectedAnimation.Speed);
+                writer.WritePropertyName("Loop Index");
+                writer.WriteValue(selectedAnimation.Loop);
+                if (LoadedAnimVer >= 3)
                 {
-                    selectedAnimation.Write(writer);
+                    writer.WritePropertyName("Rotation Flags");
+                    writer.WriteValue(selectedAnimation.Flags);
                 }
+
+                if (selectedAnimation.GetFrames().Count() > 0)
+                {
+                    writer.WritePropertyName("Frames");
+                    writer.WriteStartArray();
+                    for (int f = 0; f < selectedAnimation.GetFrames().Count(); ++f)
+                    {
+                        IFrame selectedFrame = selectedAnimation.GetFrames().ElementAt(f);
+                        writer.WriteStartObject();
+
+                        writer.WritePropertyName("SheetID");
+                        writer.WriteValue(selectedFrame.SpriteSheet);
+                        if (LoadedAnimVer != 5 && LoadedAnimVer != 1)
+                        {
+                            writer.WritePropertyName("HitboxID");
+                            writer.WriteValue(selectedFrame.CollisionBox);
+                        }
+                        else if (LoadedAnimVer == 5)
+                        {
+                            writer.WritePropertyName("ID");
+                            writer.WriteValue(selectedFrame.Id);
+                            writer.WritePropertyName("Duration");
+                            writer.WriteValue(selectedFrame.Duration);
+                        }
+
+                        writer.WritePropertyName("Src");
+                        writer.WriteStartObject();
+                        writer.WritePropertyName("x");
+                        writer.WriteValue(selectedFrame.X);
+                        writer.WritePropertyName("y");
+                        writer.WriteValue(selectedFrame.Y);
+                        writer.WriteEndObject();
+
+                        writer.WritePropertyName("Size");
+                        writer.WriteStartObject();
+                        writer.WritePropertyName("w");
+                        writer.WriteValue(selectedFrame.Width);
+                        writer.WritePropertyName("h");
+                        writer.WriteValue(selectedFrame.Height);
+                        writer.WriteEndObject();
+
+                        writer.WritePropertyName("Pivot");
+                        writer.WriteStartObject();
+                        writer.WritePropertyName("x");
+                        writer.WriteValue(selectedFrame.CenterX);
+                        writer.WritePropertyName("y");
+                        writer.WriteValue(selectedFrame.CenterY);
+                        writer.WriteEndObject();
+
+                        if (LoadedAnimVer == 5)
+                        {
+                            RSDK5.Frame frame = (RSDK5.Frame)selectedFrame;
+
+                            if (frame.Hitboxes.Count() > 0)
+                            {
+                                writer.WritePropertyName("Hitboxes");
+                                writer.WriteStartObject();
+                                for (int i = 0; i < frame.Hitboxes.Count(); ++i)
+                                {
+                                    writer.WritePropertyName(_animationData.HitboxTypes.ElementAt(i));
+                                    writer.WriteStartObject();
+                                    writer.WritePropertyName("Left");
+                                    writer.WriteValue(frame.Hitboxes[i].Left);
+                                    writer.WritePropertyName("Top");
+                                    writer.WriteValue(frame.Hitboxes[i].Top);
+                                    writer.WritePropertyName("Right");
+                                    writer.WriteValue(frame.Hitboxes[i].Right);
+                                    writer.WritePropertyName("Bottom");
+                                    writer.WriteValue(frame.Hitboxes[i].Bottom);
+                                    writer.WriteEndObject();
+                                }
+                                writer.WriteEndObject();
+                            }
+                        }
+                        else if (LoadedAnimVer == 1)
+                        {
+                            RSDK1.Frame frame = (RSDK1.Frame)selectedFrame;
+
+                            writer.WritePropertyName("Hitboxes");
+                            writer.WriteStartObject();
+                            {
+                                writer.WritePropertyName("Default");
+                                writer.WriteStartObject();
+                                writer.WritePropertyName("Left");
+                                writer.WriteValue(frame.Hitbox.Left);
+                                writer.WritePropertyName("Top");
+                                writer.WriteValue(frame.Hitbox.Top);
+                                writer.WritePropertyName("Right");
+                                writer.WriteValue(frame.Hitbox.Right);
+                                writer.WritePropertyName("Bottom");
+                                writer.WriteValue(frame.Hitbox.Bottom);
+                                writer.WriteEndObject();
+                            }
+                            writer.WriteEndObject();
+                        }
+                        else if (Settings.Default.exportFullJson)
+                        {
+                            if (selectedFrame.CollisionBox < _animationData.GetHitboxes().Count() && selectedFrame.CollisionBox >= 0)
+                            {
+                                writer.WritePropertyName("Hitboxes");
+                                writer.WriteStartObject();
+
+                                List<IHitboxEntry> hitboxList = _animationData.GetHitboxes().ToList();
+                                {
+                                    writer.WritePropertyName("Default");
+                                    writer.WriteStartObject();
+                                    writer.WritePropertyName("Left");
+                                    writer.WriteValue(hitboxList[selectedFrame.CollisionBox].GetHitbox(0).Left);
+                                    writer.WritePropertyName("Top");
+                                    writer.WriteValue(hitboxList[selectedFrame.CollisionBox].GetHitbox(0).Top);
+                                    writer.WritePropertyName("Right");
+                                    writer.WriteValue(hitboxList[selectedFrame.CollisionBox].GetHitbox(0).Right);
+                                    writer.WritePropertyName("Bottom");
+                                    writer.WriteValue(hitboxList[selectedFrame.CollisionBox].GetHitbox(0).Bottom);
+                                    writer.WriteEndObject();
+                                }
+                                writer.WriteEndObject();
+                            }
+                        }
+
+                        writer.WriteEndObject();
+                    }
+                    writer.WriteEndArray();
+                }
+
+                writer.WriteEndObject();
             }
+
+            if (!fileName.ToLower().EndsWith(".json"))
+                fileName += ".json";
+
+            File.WriteAllText(fileName, string.Empty);
+            File.WriteAllText(fileName, sb.ToString());
         }
 
         public void FrameAdd()
@@ -761,14 +1487,96 @@ namespace AnimationEditor.ViewModels
             var selectedAnimation = SelectedAnimation;
             if (selectedAnimation == null) return;
 
-            using (var fStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+            using (StreamReader reader = new StreamReader(File.OpenRead(fileName)))
             {
-                using (var reader = new BinaryReader(fStream))
+                _animationData.Factory(out IFrame o);
+
+                var parsedJson = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.Linq.JToken.ReadFrom(new JsonTextReader(reader));
+
+                o.SpriteSheet = (int)(parsedJson["SheetID"] == null ? 0 : parsedJson["SheetID"]);
+                o.CollisionBox = (int)(parsedJson["HitboxID"] == null ? 0 : parsedJson["HitboxID"]);
+                o.Id = (int)(parsedJson["ID"] == null ? 0 : parsedJson["ID"]);
+                o.Duration = (int)(parsedJson["Duration"] == null ? 256 : parsedJson["Duration"]);
+
+                if (parsedJson["Src"] != null)
                 {
-                    _animationData.Factory(out IFrame o);
-                    o.Read(reader);
-                    FrameAdd(o, SelectedFrameIndex);
+                    o.X = (int)(parsedJson["Src"]["x"] == null ? 0 : parsedJson["Src"]["x"]);
+                    o.Y = (int)(parsedJson["Src"]["y"] == null ? 0 : parsedJson["Src"]["y"]);
                 }
+                if (parsedJson["Size"] != null)
+                {
+                    o.Width = (int)(parsedJson["Size"]["w"] == null ? 0 : parsedJson["Size"]["w"]);
+                    o.Height = (int)(parsedJson["Size"]["h"] == null ? 0 : parsedJson["Size"]["h"]);
+                }
+                if (parsedJson["Pivot"] != null)
+                {
+                    o.CenterX = (int)(parsedJson["Pivot"]["x"] == null ? 0 : parsedJson["Pivot"]["x"]);
+                    o.CenterY = (int)(parsedJson["Pivot"]["y"] == null ? 0 : parsedJson["Pivot"]["y"]);
+                }
+
+                if (LoadedAnimVer == 5)
+                {
+                    RSDK5.Frame frame = (RSDK5.Frame)o;
+                    if (parsedJson["Hitboxes"] != null)
+                    {
+                        for (int i = 0; i < AnimationData.HitboxTypes.Count(); ++i)
+                        {
+                            if (parsedJson["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)] != null)
+                            {
+                                if (parsedJson["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Left"] != null)
+                                    frame.Hitboxes[i].Left = (int)parsedJson["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Left"];
+                                else
+                                    frame.Hitboxes[i].Left = 0;
+
+                                if (parsedJson["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Top"] != null)
+                                    frame.Hitboxes[i].Top = (int)parsedJson["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Top"];
+                                else
+                                    frame.Hitboxes[i].Top = 0;
+
+                                if (parsedJson["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Right"] != null)
+                                    frame.Hitboxes[i].Right = (int)parsedJson["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Right"];
+                                else
+                                    frame.Hitboxes[i].Right = 0;
+
+                                if (parsedJson["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Bottom"] != null)
+                                    frame.Hitboxes[i].Bottom = (int)parsedJson["Hitboxes"][AnimationData.HitboxTypes.ElementAt(i)]["Bottom"];
+                                else
+                                    frame.Hitboxes[i].Bottom = 0;
+                            }
+                        }
+                    }
+                }
+                else if (LoadedAnimVer == 1)
+                {
+                    RSDK1.Frame frame = (RSDK1.Frame)o;
+                    if (parsedJson["Hitboxes"] != null)
+                    {
+                        if (parsedJson["Hitboxes"]["Default"] != null)
+                        {
+                            if (parsedJson["Hitboxes"]["Default"]["Left"] != null)
+                                frame.Hitbox.Left = (int)parsedJson["Hitboxes"]["Default"]["Left"];
+                            else
+                                frame.Hitbox.Left = 0;
+
+                            if (parsedJson["Hitboxes"]["Default"]["Top"] != null)
+                                frame.Hitbox.Top = (int)parsedJson["Hitboxes"]["Default"]["Top"];
+                            else
+                                frame.Hitbox.Top = 0;
+
+                            if (parsedJson["Hitboxes"]["Default"]["Right"] != null)
+                                frame.Hitbox.Right = (int)parsedJson["Hitboxes"]["Default"]["Right"];
+                            else
+                                frame.Hitbox.Right = 0;
+
+                            if (parsedJson["Hitboxes"]["Default"]["Bottom"] != null)
+                                frame.Hitbox.Bottom = (int)parsedJson["Hitboxes"]["Default"]["Bottom"];
+                            else
+                                frame.Hitbox.Bottom = 0;
+                        }
+                    }
+                }
+
+                FrameAdd(o, SelectedFrameIndex);
             }
         }
 
@@ -777,13 +1585,133 @@ namespace AnimationEditor.ViewModels
             var selectedFrame = SelectedFrame;
             if (selectedFrame == null) return;
 
-            using (var fStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read))
+            StringBuilder sb = new StringBuilder();
+            StringWriter sw = new StringWriter(sb);
+            using (JsonWriter writer = new JsonTextWriter(sw))
             {
-                using (var writer = new BinaryWriter(fStream))
+                writer.Formatting = Formatting.Indented;
+
+                //writer.WritePropertyName("Frame");
+                writer.WriteStartObject();
+
+                writer.WritePropertyName("SheetID");
+                writer.WriteValue(selectedFrame.SpriteSheet);
+                if (LoadedAnimVer != 5 && LoadedAnimVer != 1)
                 {
-                    selectedFrame.Write(writer);
+                    writer.WritePropertyName("HitboxID");
+                    writer.WriteValue(selectedFrame.CollisionBox);
                 }
+                else if (LoadedAnimVer == 5)
+                {
+                    writer.WritePropertyName("ID");
+                    writer.WriteValue(selectedFrame.Id);
+                    writer.WritePropertyName("Duration");
+                    writer.WriteValue(selectedFrame.Duration);
+                }
+
+                writer.WritePropertyName("Src");
+                writer.WriteStartObject();
+                writer.WritePropertyName("x");
+                writer.WriteValue(selectedFrame.X);
+                writer.WritePropertyName("y");
+                writer.WriteValue(selectedFrame.Y);
+                writer.WriteEndObject();
+
+                writer.WritePropertyName("Size");
+                writer.WriteStartObject();
+                writer.WritePropertyName("w");
+                writer.WriteValue(selectedFrame.Width);
+                writer.WritePropertyName("h");
+                writer.WriteValue(selectedFrame.Height);
+                writer.WriteEndObject();
+
+                writer.WritePropertyName("Pivot");
+                writer.WriteStartObject();
+                writer.WritePropertyName("x");
+                writer.WriteValue(selectedFrame.CenterX);
+                writer.WritePropertyName("y");
+                writer.WriteValue(selectedFrame.CenterY);
+                writer.WriteEndObject();
+
+                if (LoadedAnimVer == 5)
+                {
+                    RSDK5.Frame frame = (RSDK5.Frame)selectedFrame;
+
+                    if (frame.Hitboxes.Count() > 0)
+                    {
+                        writer.WritePropertyName("Hitboxes");
+                        writer.WriteStartObject();
+                        for (int i = 0; i < frame.Hitboxes.Count(); ++i)
+                        {
+                            writer.WritePropertyName(_animationData.HitboxTypes.ElementAt(i));
+                            writer.WriteStartObject();
+                            writer.WritePropertyName("Left");
+                            writer.WriteValue(frame.Hitboxes[i].Left);
+                            writer.WritePropertyName("Top");
+                            writer.WriteValue(frame.Hitboxes[i].Top);
+                            writer.WritePropertyName("Right");
+                            writer.WriteValue(frame.Hitboxes[i].Right);
+                            writer.WritePropertyName("Bottom");
+                            writer.WriteValue(frame.Hitboxes[i].Bottom);
+                            writer.WriteEndObject();
+                        }
+                        writer.WriteEndObject();
+                    }
+                }
+                else if (LoadedAnimVer == 1)
+                {
+                    RSDK1.Frame frame = (RSDK1.Frame)selectedFrame;
+
+                    writer.WritePropertyName("Hitboxes");
+                    writer.WriteStartObject();
+                    {
+                        writer.WritePropertyName("Default");
+                        writer.WriteStartObject();
+                        writer.WritePropertyName("Left");
+                        writer.WriteValue(frame.Hitbox.Left);
+                        writer.WritePropertyName("Top");
+                        writer.WriteValue(frame.Hitbox.Top);
+                        writer.WritePropertyName("Right");
+                        writer.WriteValue(frame.Hitbox.Right);
+                        writer.WritePropertyName("Bottom");
+                        writer.WriteValue(frame.Hitbox.Bottom);
+                        writer.WriteEndObject();
+                    }
+                    writer.WriteEndObject();
+                }
+                else if (Settings.Default.exportFullJson)
+                {
+                    if (selectedFrame.CollisionBox < _animationData.GetHitboxes().Count() && selectedFrame.CollisionBox >= 0)
+                    {
+                        writer.WritePropertyName("Hitboxes");
+                        writer.WriteStartObject();
+
+                        List<IHitboxEntry> hitboxList = _animationData.GetHitboxes().ToList();
+                        {
+                            writer.WritePropertyName("Default");
+                            writer.WriteStartObject();
+                            writer.WritePropertyName("Left");
+                            writer.WriteValue(hitboxList[selectedFrame.CollisionBox].GetHitbox(0).Left);
+                            writer.WritePropertyName("Top");
+                            writer.WriteValue(hitboxList[selectedFrame.CollisionBox].GetHitbox(0).Top);
+                            writer.WritePropertyName("Right");
+                            writer.WriteValue(hitboxList[selectedFrame.CollisionBox].GetHitbox(0).Right);
+                            writer.WritePropertyName("Bottom");
+                            writer.WriteValue(hitboxList[selectedFrame.CollisionBox].GetHitbox(0).Bottom);
+                            writer.WriteEndObject();
+                        }
+                        writer.WriteEndObject();
+                    }
+                }
+
+                writer.WriteEndObject();
             }
+
+            if (!fileName.ToLower().EndsWith(".json"))
+                fileName += ".json";
+
+            File.WriteAllText(fileName, string.Empty);
+            File.WriteAllText(fileName, sb.ToString());
         }
 
         public void CurrentFrameChanged()

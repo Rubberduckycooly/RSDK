@@ -41,7 +41,7 @@ namespace RSDK2
             "Walking",
             "Running",
             "Skidding",
-            "SuperPeelOut",
+            "Super Peel Out",
             "Spin Dash",
             "Jumping",
             "Bouncing",
@@ -56,7 +56,7 @@ namespace RSDK2
             "Flailing Right",
             "Sliding",
             "Sonic Nexus Animation #23",
-            "FinishPose",
+            "Finish Pose",
             "Sonic Nexus Animation #24",
             "Sonic Nexus Animation #25",
             "Sonic Nexus Animation #26",
@@ -67,7 +67,7 @@ namespace RSDK2
             "Sonic Nexus Animation #31",
             "Sonic Nexus Animation #32",
             "Sonic Nexus Animation #33",
-            "Cork Screw",
+            "CorkScrew",
             "Sonic Nexus Animation #35",
             "Sonic Nexus Animation #36",
             "Sonic Nexus Animation #37",
@@ -87,8 +87,6 @@ namespace RSDK2
             "Sonic Nexus Animation #51",
 };
 
-        public bool BitFlipped = false;
-
         public int PlayerType { get; set; }
 
         public int Version => 2;
@@ -99,47 +97,21 @@ namespace RSDK2
 
         public List<HitboxEntry> Hitboxes { get; }
 
-        public IEnumerable<string> HitboxTypes => null;
+        public IEnumerable<string> HitboxTypes { get; }
 
         public byte[] UnusedBytes;
 
-        public Animation(BinaryReader reader, bool bf = false)
+        public Animation() { SpriteSheets = new List<string>(); Animations = new List<AnimationEntry>(); Hitboxes = new List<HitboxEntry>(); HitboxTypes = new List<string>(); }
+        public Animation(BinaryReader reader)
         {
-            BitFlipped = bf;
-
             UnusedBytes = reader.ReadBytes(5); //skip these bytes, as they seem to be useless/unused...
-
-            if (BitFlipped)
-            {
-                for (int i = 0; i < 5; i++)
-                {
-                    UnusedBytes[i] ^= 255;
-                }
-            }
 
             int spriteSheetsCount = 4; //always 4
 
             SpriteSheets = new List<string>(spriteSheetsCount);
-
-            byte[] byteBuf = null;
-
             for (int i = 0; i < spriteSheetsCount; i++)
             {
-                int sLen = reader.ReadByte();
-                if (BitFlipped) sLen ^= 255;
-                byteBuf = new byte[sLen];
-
-                byteBuf = reader.ReadBytes(sLen);
-
-                if (BitFlipped)
-                {
-                    for (int ii = 0; ii < sLen; ii++)
-                    {
-                        byteBuf[ii] ^= 255;
-                    }
-                }
-
-                string sheet = System.Text.Encoding.UTF8.GetString(byteBuf);
+                string sheet = System.Text.Encoding.UTF8.GetString(reader.ReadBytes(reader.ReadByte()));
 
                 if (!string.IsNullOrWhiteSpace(sheet))
                     SpriteSheets.Add(sheet);
@@ -147,7 +119,6 @@ namespace RSDK2
 
             // Read number of animations
             var animationsCount = reader.ReadByte();
-            if (BitFlipped) animationsCount ^= 255;
 
             Animations = new List<AnimationEntry>(animationsCount);
 
@@ -160,13 +131,6 @@ namespace RSDK2
                 // Read loop start
                 int loopFrom = reader.ReadByte();
 
-                if (BitFlipped)
-                {
-                    frameCount ^= 255;
-                    animationSpeed ^= 255;
-                    loopFrom ^= 255;
-                }
-
                 string name = "Sonic Nexus Animation #" + (i + 1);
                 try
                 {
@@ -177,14 +141,13 @@ namespace RSDK2
                     name = "Sonic Nexus Animation #" + (i + 1);
                 }
                 Animations.Add(new AnimationEntry(name, frameCount, animationSpeed,
-                    loopFrom, 0, reader,BitFlipped));
+                    loopFrom, 0, reader));
             }
 
             var collisionBoxesCount = reader.ReadByte();
-            if (BitFlipped) collisionBoxesCount ^= 255;
             Hitboxes = new List<HitboxEntry>(collisionBoxesCount);
             while (collisionBoxesCount-- > 0)
-            { Hitboxes.Add(new HitboxEntry(reader,BitFlipped)); }
+            { Hitboxes.Add(new HitboxEntry(reader)); }
         }
         public void Factory(out IAnimationEntry o) { o = new AnimationEntry(); }
         public void Factory(out IFrame o) { o = new Frame(); }
@@ -221,7 +184,18 @@ namespace RSDK2
 
         public void SaveChanges(BinaryWriter writer)
         {
-            writer.Write(UnusedBytes);
+            if (UnusedBytes != null)
+            {
+                writer.Write(UnusedBytes);
+            }
+            else
+            {
+                writer.Write((byte)0);
+                writer.Write((byte)0);
+                writer.Write((byte)0);
+                writer.Write((byte)0);
+                writer.Write((byte)0);
+            }
 
             var spriteSheetsCount = (byte)Math.Min(SpriteSheets.Count, 4);
             int s = 0;

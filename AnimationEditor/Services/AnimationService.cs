@@ -162,7 +162,7 @@ namespace AnimationEditor.Services
             _dicAnimations = AnimationData.GetAnimations()
                 .ToDictionary(x => x.Name, x => x);
 
-            Timer.Enabled = true;
+            Timer.Enabled = false;
         }
 
         /// <summary>
@@ -203,9 +203,12 @@ namespace AnimationEditor.Services
                 return 0;
 
             int framesCount = curAnim.GetFrames().Count();
-            int loop = curAnim.Loop;
             if (framesCount <= 0)
                 return 0;
+
+            //The 2nd half of "static rotation" anims are the extra rotation frames
+            if ((curAnim.Flags == 3 && AnimationData.Version != 5) || (curAnim.Flags == 5 && AnimationData.Version == 5))
+                framesCount /= 2;
 
             const int Divisor = 1024;
             var baseSpeed = CurrentAnimation.Speed;

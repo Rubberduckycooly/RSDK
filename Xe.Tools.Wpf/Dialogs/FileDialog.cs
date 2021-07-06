@@ -56,7 +56,8 @@ namespace Xe.Tools.Wpf.Dialogs
             Rsdk3Animation,
             Rsdk3Frame,
             Rsdk5Animation,
-            Rsdk5Frame
+            Rsdk5Frame,
+            jsonFile
         }
 
         private CommonFileDialog _fd;
@@ -189,6 +190,10 @@ namespace Xe.Tools.Wpf.Dialogs
                     case Type.Rsdk5Frame:
                         fd.Filters.Add(CreateFilter("RSDK5 frame files",
                             new string[] { "frame.rsdk5" }));
+                        break;
+                    case Type.jsonFile:
+                        fd.Filters.Add(CreateFilter("JSON files",
+                            new string[] { "json" }));
                         break;
                     default:
                         break;

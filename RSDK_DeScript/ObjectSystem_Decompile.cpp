@@ -77,7 +77,6 @@ void ObjectSystem::DecompileStatement(FILE* f, StateScriptEngine& state) {
 		int paramsCount = scriptOpcodeSizes[opcode];
 
 		char variableName[10][0x100];
-		int variableIndex;
 		for (int i = 0; i < paramsCount; i++) {
 			int paramId = scriptData[state.scriptCodePtr++];
 			switch (paramId) {

@@ -6,21 +6,32 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AnimationEditor"
         mc:Ignorable="d"
-        Title="{Binding Title}" Height="444" Width="660">
+        Title="{Binding Title}" Height="472" Width="660">
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
                 <MenuItem x:Name="MenuFileOpen" Header="_Open" Click="MenuFileOpen_Click"/>
-                <MenuItem x:Name="MenuFileSave" Header="_Save" Click="MenuFileSave_Click"/>
-                <MenuItem x:Name="MenuFileSaveAs" Header="Save _as" Click="MenuFileSaveAs_Click"/>
+                <MenuItem x:Name="MenuFileSave" Header="_Save" Click="MenuFileSave_Click" IsEnabled="False"/>
+                <MenuItem x:Name="MenuFileSaveAs" Header="Save _as" Click="MenuFileSaveAs_Click" IsEnabled="False"/>
+                <Separator HorizontalAlignment="Left" Height="2" Width="140"/>
+                <MenuItem x:Name="MenuFileImportJson" Header="Import _Json" Click="MenuFileImportJson_Click"/>
+                <MenuItem x:Name="MenuFileExportJson" Header="Export _Json" Click="MenuFileExportJson_Click" IsEnabled="False"/>
+                <Separator HorizontalAlignment="Left" Height="2" Width="140"/>
+                <MenuItem x:Name="MenuFileRecent" Header="Recent Files">
+                    <MenuItem x:Name="NoRecentFiles" Header="No Recent Files"/>
+                </MenuItem>
+                <Separator HorizontalAlignment="Left" Height="2" Width="140"/>
+                <MenuItem x:Name="MenuFileClose" Header="Close Animation" Click="MenuFileClose_Click"/>
                 <MenuItem x:Name="MenuFileExit" Header="E_xit" Click="MenuFileExit_Click"/>
             </MenuItem>
-            <MenuItem Header="_View">
+            <MenuItem x:Name="MenuView" Header="_View" IsEnabled="False">
                 <MenuItem x:Name="MenuViewHitbox" Header="_Hitbox manager" Click="MenuViewHitbox_Click"/>
                 <MenuItem x:Name="MenuViewTexture" Header="_Texture manager" Click="MenuViewTexture_Click"/>
             </MenuItem>
             <MenuItem Header="_Tools" Height="29" Width="39" RenderTransformOrigin="0.5,0.5">
-                <MenuItem Header="Export SpriteFrames" HorizontalAlignment="Left" Height="29" Width="215" Margin="-4,0,-71,0" Click="SpriteFrameMenuItem_Click"/>
+                <MenuItem x:Name="MenuExportSpriteFrames" Header="Export SpriteFrames" Click="SpriteFrameMenuItem_Click" IsEnabled="False"/>
+				<Separator HorizontalAlignment="Left" Height="2" Width="220"/>
+                <MenuItem x:Name="MenuExportFullJson" Header="Export Full Json Files" Click="MenuExportFullJson_Click" ToolTip="Determines whether exporting Json files should format data to be easily convertible between versions or not"/>
             </MenuItem>
             <MenuItem Header="_Info">
                 <MenuItem x:Name="MenuInfoAbout" Header="_About" Click="MenuInfoAbout_Click"/>
@@ -130,7 +141,7 @@
                        IsEnabled="{Binding IsAnimationSelected}">
                 <DockPanel DockPanel.Dock="Bottom">
                     <ListBox x:Name="FramesList" ScrollViewer.HorizontalScrollBarVisibility="Visible"
-                         ItemsSource="{Binding AnimationFrames}" SelectedIndex="{Binding SelectedFrameIndex}" MouseDoubleClick="FramesList_MouseDoubleClick">
+                         ItemsSource="{Binding AnimationFrames}" SelectedIndex="{Binding SelectedFrameIndex}">
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <VirtualizingStackPanel IsItemsHost="True" Orientation="Horizontal"/>
@@ -146,97 +157,97 @@
                 </DockPanel>
                 <StackPanel DockPanel.Dock="Bottom" Margin="0 0 0 5" Orientation="Horizontal">
                     <ToggleButton x:Name="ButtonPlay" IsChecked="{Binding IsRunning, Mode=TwoWay}">
-                        <Image Width="16" Source="{StaticResource Run_16x}"/>
                         <ToggleButton.ToolTip>
                             <StackPanel>
-                                <Label>Play the current animation</Label>
+                                <Label Content="Play the current animation"/>
                             </StackPanel>
                         </ToggleButton.ToolTip>
+                        <Image Width="16" Source="{StaticResource Run_16x}"/>
                     </ToggleButton>
                     <Button x:Name="ButtonRewind" Visibility="Collapsed">
-                        <Image Width="16"/>
                         <Button.ToolTip>
                             <StackPanel>
-                                <Label>Restart the animation from the first frame</Label>
+                                <Label Content="Restart the animation from the first frame"/>
                             </StackPanel>
                         </Button.ToolTip>
+                        <Image Width="16"/>
                     </Button>
                     <Button x:Name="ButtonZoomIn" Click="ButtonZoomIn_Click">
-                        <Image Width="16" Source="{StaticResource ZoomIn_16x}"/>
                         <Button.ToolTip>
                             <StackPanel>
-                                <Label>Zoom in</Label>
+                                <Label Content="Zoom in"/>
                             </StackPanel>
                         </Button.ToolTip>
+                        <Image Width="16" Source="{StaticResource ZoomIn_16x}"/>
                     </Button>
                     <Button x:Name="ButtonZoomOut" Click="ButtonZoomOut_Click">
-                        <Image Width="16" Source="{StaticResource ZoomOut_16x}"/>
                         <Button.ToolTip>
                             <StackPanel>
-                                <Label>Zoom out</Label>
+                                <Label Content="Zoom out"/>
                             </StackPanel>
                         </Button.ToolTip>
+                        <Image Width="16" Source="{StaticResource ZoomOut_16x}"/>
                     </Button>
                     <ToggleButton x:Name="ButtonShowCenter" IsChecked="{Binding ShowCenter, Mode=TwoWay}" Visibility="Collapsed">
-                        <Image Width="16" Source="{StaticResource TableInsideBorder_16x}"/>
                         <ToggleButton.ToolTip>
                             <StackPanel>
-                                <Label>Show a guide to center a frame</Label>
+                                <Label Content="Show a guide to center a frame"/>
                             </StackPanel>
                         </ToggleButton.ToolTip>
+                        <Image Width="16" Source="{StaticResource TableInsideBorder_16x}"/>
                     </ToggleButton>
                     <ToggleButton x:Name="ButtonShowFieldHitbox" IsChecked="{Binding ShowFieldHitbox, Mode=TwoWay}" Visibility="Collapsed">
-                        <Image Width="16" Source="{StaticResource AppearanceTabSolid_16x}"/>
                         <ToggleButton.ToolTip>
                             <StackPanel>
-                                <Label>Show the hitbox used for field collision</Label>
+                                <Label Content="Show the hitbox used for field collision"/>
                             </StackPanel>
                         </ToggleButton.ToolTip>
+                        <Image Width="16" Source="{StaticResource AppearanceTabSolid_16x}"/>
                     </ToggleButton>
                     <ToggleButton x:Name="ButtonShowEntityHitbox" IsChecked="{Binding ShowEntityHitbox, Mode=TwoWay}" Visibility="Collapsed">
-                        <Image Width="16" Source="{StaticResource AppearanceTabSwatch_16x}"/>
                         <ToggleButton.ToolTip>
                             <StackPanel>
-                                <Label>Show the hitbox used for entity collision</Label>
+                                <Label Content="Show the hitbox used for entity collision"/>
                             </StackPanel>
                         </ToggleButton.ToolTip>
+                        <Image Width="16" Source="{StaticResource AppearanceTabSwatch_16x}"/>
                     </ToggleButton>
 
                     <Separator Margin="5 0 5 0" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
 
                     <Button x:Name="ButtonFrameAdd" Grid.Column="1" Click="ButtonFrameAdd_Click"
                             IsEnabled="{Binding IsAnimationSelected}">
-                        <Image Source="{StaticResource Add_16x}" Width="16"/>
                         <Button.ToolTip>
                             <Label Content="Create an empty frame"/>
                         </Button.ToolTip>
+                        <Image Source="{StaticResource Add_16x}" Width="16"/>
                     </Button>
                     <Button x:Name="ButtonFrameDupe" Grid.Column="1" Click="ButtonFrameDupe_Click"
                             IsEnabled="{Binding IsFrameSelected}">
-                        <Image Source="{StaticResource Copy_16x}" Width="16"/>
                         <Button.ToolTip>
                             <Label Content="Duplicate selected frame"/>
                         </Button.ToolTip>
+                        <Image Source="{StaticResource Copy_16x}" Width="16"/>
                     </Button>
                     <Button x:Name="ButtonFrameRemove" Grid.Column="1" Click="ButtonFrameRemove_Click"
                             IsEnabled="{Binding IsFrameSelected}">
-                        <Image Source="{StaticResource Remove_color_16x}" Width="16"/>
                         <Button.ToolTip>
                             <Label Content="Delete the selected frame"/>
                         </Button.ToolTip>
+                        <Image Source="{StaticResource Remove_color_16x}" Width="16"/>
                     </Button>
                     <Button x:Name="ButtonFrameImport" Grid.Column="1" Click="ButtonFrameImport_Click">
-                        <Image Source="{StaticResource Import_16x}" Width="16"/>
                         <Button.ToolTip>
                             <Label Content="Import an existing frame"/>
                         </Button.ToolTip>
+                        <Image Source="{StaticResource Import_16x}" Width="16"/>
                     </Button>
                     <Button x:Name="ButtonFrameExport" Grid.Column="1" Click="ButtonFrameExport_Click"
                             IsEnabled="{Binding IsFrameSelected}">
-                        <Image Source="{StaticResource Export_16x}" Width="16"/>
                         <Button.ToolTip>
                             <Label Content="Export the selected frame"/>
                         </Button.ToolTip>
+                        <Image Source="{StaticResource Export_16x}" Width="16"/>
                     </Button>
                     <Button BorderThickness="0" Background="Transparent" Click="ButtonFrameLeft_Click">
                         <Button.ToolTip>
@@ -244,7 +255,7 @@
                                 <Label Content="Shifts the Current Frame to the left by one."/>
                             </StackPanel>
                         </Button.ToolTip>
-                        <Canvas Name="layer3" Width="16" Height="16">
+                        <Canvas x:Name="layer3" Width="16" Height="16">
                             <Canvas.RenderTransform>
                                 <TranslateTransform X="-61" Y="-165"/>
                             </Canvas.RenderTransform>
@@ -283,7 +294,7 @@
                         </Canvas>
                     </Button>
                 </StackPanel>
-                <Canvas Margin="0 0 0 5" SizeChanged="Canvas_SizeChanged"
+                <Canvas x:Name="mainCanvas" Margin="0 0 0 5" SizeChanged="Canvas_SizeChanged"
                         RenderOptions.BitmapScalingMode="NearestNeighbor"
                         ClipToBounds="True" MouseWheel="Canvas_MouseWheel"
                         Background="#303030">
@@ -322,24 +333,24 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Column="0" Grid.Row="0" Text="Speed"/>
+                        <TextBlock Grid.Column="0" Grid.Row="0" Text="Anim Speed"/>
                         <xc:NumericUpDown Grid.Column="0" Grid.Row="1" MinimumValue="0" MaximumValue="65535"
                                           Value="{Binding Speed, Mode=TwoWay}"/>
-                        <TextBlock Grid.Column="2" Grid.Row="0" Text="Loop index"/>
+                        <TextBlock Grid.Column="2" Grid.Row="0"><Run Text="Loop "/><Run Text="Index"/></TextBlock>
                         <xc:NumericUpDown Grid.Column="2" Grid.Row="1" MinimumValue="0" MaximumValue="255"
                                           Value="{Binding Loop, Mode=TwoWay}"/>
 
-                        <TextBlock Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="3" Text="Flags"/>
+                        <TextBlock x:Name="RotFlag_Label" Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="3" Text="Rotation Flags"/>
                         <ComboBox x:Name="FlagsSelector" Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="5"
                                   SelectedIndex="{Binding Flags, Mode=TwoWay}">
-                            <TextBlock Text="Default behavior"/>
-                            <TextBlock Text="Full engine rotation"/>
-                            <TextBlock Text="45 Degree engine rotation"/>
+                            <TextBlock Text="No Rotation"/>
+                            <TextBlock Text="Full Rotation"/>
+                            <TextBlock Text="Snap to multiples of 45 Degrees"/>
                             <TextBlock Text="Static rotation using extra frames"/>
-                            <TextBlock Text="1/2 Engine Rotation"/>
-                            <TextBlock Text="90 Degree Engine Rotation"/>
-                            <TextBlock Text="135/225 degree Rotation"/>
-                            <TextBlock Text="Just 135 degree Rotation"/>
+                            <TextBlock Text="Snap to multiples of 180 degrees"/>
+                            <TextBlock Text="Snap to multiples of 90 degrees"/>
+                            <TextBlock Text="135/225 Degree Rotation"/>
+                            <TextBlock Text="Just 135 Degree Rotation"/>
                         </ComboBox>
 
                     </Grid>
@@ -353,7 +364,7 @@
                             </TextBlock>
                         </GroupBox.Header>
                         <StackPanel>
-                            <TextBlock Margin="0 5 0 0" Text="Texture"/>
+                            <TextBlock Margin="0 5 0 0"><Run Text="Sprite"/><Run Text="s"/><Run Text="heet"/></TextBlock>
                             <ComboBox ItemsSource="{Binding Textures}"
                               SelectedIndex="{Binding SelectedFrameTexture, Mode=TwoWay}"/>
                             <TextBlock Margin="0 5 0 0" Text="Hitbox"/>
@@ -394,14 +405,14 @@
                                     Value="{Binding SelectedHitbox.Bottom, Mode=TwoWay}"/>
                             </Grid>
 
-                            <TextBlock Margin="0 5 0 0" Text="Sprite property"/>
+                            <TextBlock Margin="0 5 0 0"><Run Text="Sprite "/><Run Text="Properties"/></TextBlock>
                             <Grid Margin="3">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="35"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="38"/>
+                                    <ColumnDefinition/>
                                     <ColumnDefinition Width="2"/>
-                                    <ColumnDefinition Width="50"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="47"/>
+                                    <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="5"/>
@@ -414,11 +425,11 @@
                                     <RowDefinition Height="20"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Column="0" Grid.Row="1" Text="Left"/>
+                                <TextBlock Grid.Column="0" Grid.Row="1" Text="Spr X"/>
                                 <xc:NumericUpDown Grid.Column="1" Grid.Row="1"
                                     MinimumValue="0" MaximumValue="32767"
                                     Value="{Binding SelectedFrameLeft, Mode=TwoWay}"/>
-                                <TextBlock Grid.Column="3" Grid.Row="1" Text="Top"/>
+                                <TextBlock Grid.Column="3" Grid.Row="1" Text="Spr Y"/>
                                 <xc:NumericUpDown Grid.Column="4" Grid.Row="1"
                                     MinimumValue="0" MaximumValue="32767"
                                     Value="{Binding SelectedFrameTop, Mode=TwoWay}"/>
@@ -430,11 +441,11 @@
                                 <xc:NumericUpDown Grid.Column="4" Grid.Row="3"
                                     MinimumValue="0" MaximumValue="32767"
                                     Value="{Binding SelectedFrameHeight, Mode=TwoWay}"/>
-                                <TextBlock Grid.Column="0" Grid.Row="5" Text="PivotX"/>
+                                <TextBlock Grid.Column="0" Grid.Row="5"><Run Text="Pivot"/><Run Text=" "/><Run Text="X"/></TextBlock>
                                 <xc:NumericUpDown x:Name="PivotXBox" Grid.Column="1" Grid.Row="5"
                                     MinimumValue="-32768" MaximumValue="32767"
                                     Value="{Binding SelectedFramePivotX, Mode=TwoWay}"/>
-                                <TextBlock Grid.Column="3" Grid.Row="5" Text="PivotY"/>
+                                <TextBlock Grid.Column="3" Grid.Row="5"><Run Text="Pivot"/><Run Text=" "/><Run Text="Y"/></TextBlock>
                                 <xc:NumericUpDown x:Name="PivotYBox" Grid.Column="4" Grid.Row="5"
                                     MinimumValue="-32768" MaximumValue="32767"
                                     Value="{Binding SelectedFramePivotY, Mode=TwoWay}"/>

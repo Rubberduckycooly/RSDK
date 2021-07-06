@@ -41,12 +41,12 @@
             <ComboBox DockPanel.Dock="Top" Margin="0 0 0 5" SelectedIndex="{Binding SelectedHitboxIndex, Mode=TwoWay}">
                 <TextBlock Text="Floor (outer box)"/>
                 <TextBlock Text="Floor (inner box)"/>
-                <TextBlock Text="Ceiling (outer box)"/>
-                <TextBlock Text="Ceiling (inner box)"/>
-                <TextBlock Text="Wall left (outer box)"/>
-                <TextBlock Text="Wall left (inner box)"/>
-                <TextBlock Text="Wall right (outer box)"/>
-                <TextBlock Text="Wall right (inner box)"/>
+                <TextBlock Text="Roof (outer box)"/>
+                <TextBlock Text="Roof (inner box)"/>
+                <TextBlock Text="LWall (outer box)"/>
+                <TextBlock Text="LWall (inner box)"/>
+                <TextBlock Text="RWall (outer box)"/>
+                <TextBlock Text="RWall (inner box)"/>
             </ComboBox>
             <GroupBox DockPanel.Dock="Top" Header="Hitbox" Margin="0 0 0 5"
                       IsEnabled="{Binding IsHitboxSelected}">

@@ -22,27 +22,29 @@
 
 using RSDK;
 using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace RSDK2
 {
     public class HitboxEntry : IHitboxEntry
     {
-        public Hitbox[] Hitboxes { get; set; }
+        public List<Hitbox> Hitboxes { get; set; }
 
-        public int Count => Hitboxes.Length;
+        public int Count => Hitboxes.Count;
 
         public HitboxEntry()
         {
-            Hitboxes = new Hitbox[8];
-            for (int i = 0; i < Hitboxes.Length; i++)
-                Hitboxes[i] = new Hitbox();
+            Hitboxes = new List<Hitbox>();
+            for (int i = 0; i < 8; i++)
+                Hitboxes.Add(new Hitbox());
         }
 
-		public HitboxEntry(BinaryReader reader,bool BitFlipped = false)
+        public HitboxEntry(BinaryReader reader)
         {
-            Hitboxes = new Hitbox[8];
-            for (int i = 0; i < Hitboxes.Length; i++)
-                Hitboxes[i] = new Hitbox(reader,BitFlipped);
+            Hitboxes = new List<Hitbox>();
+            for (int i = 0; i < 8; i++)
+                Hitboxes.Add(new Hitbox(reader));
         }
 
         public IHitbox GetHitbox(int index)
@@ -50,10 +52,29 @@ namespace RSDK2
             return Hitboxes[index];
         }
 
+        public IEnumerable<IHitbox> GetHitboxes()
+        {
+            return Hitboxes.Select(x => (IHitbox)x);
+        }
+
+        public void SetHitboxes(IEnumerable<IHitbox> hitboxes)
+        {
+            Hitboxes.Clear();
+            Hitboxes.AddRange(hitboxes
+                .Select(x => x as Hitbox)
+                .Where(x => x != null));
+        }
+
         public void SaveChanges(BinaryWriter writer)
         {
-            for (int i = 0; i < Hitboxes.Length; i++)
+            int i = 0;
+            for (; i < Hitboxes.Count; i++)
                 Hitboxes[i].SaveChanges(writer);
+            for (; i < 8; i++)
+            {
+                Hitbox hitbox = new Hitbox();
+                hitbox.SaveChanges(writer);
+            }
         }
     }
 }

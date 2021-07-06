@@ -55,16 +55,37 @@ namespace RSDK1
 
         public int CenterY { get; set; }
 
-        public int[] Hitbox;
+        public Hitbox Hitbox;
+
+        public Frame()
+        {
+            Hitbox = new Hitbox();
+        }
 
         public IHitbox GetHitbox(int index)
         {
-            return new Hitbox();
+            return Hitbox;
         }
 
         public void SaveChanges(BinaryWriter writer)
         {
             Write(writer);
+        }
+
+        private sbyte readSByte(BinaryReader reader)
+        {
+            int val = reader.ReadByte();
+            if (val > 127)
+                return (sbyte)(0x80 - val);
+            else
+                return (sbyte)val;
+        }
+        private void writeSByte(BinaryWriter writer, int val)
+        {
+            if (val < 0)
+                writer.Write((byte)(0x80 - val));
+            else
+                writer.Write((byte)val);
         }
 
         public void Read(BinaryReader reader)
@@ -86,12 +107,14 @@ namespace RSDK1
             Height = reader.ReadByte();
             SpriteSheet = reader.ReadByte();
             Id = 0;
+            CollisionBox = 0;
 
-            Hitbox = new int[4];
+            Hitbox = new Hitbox();
 
-            for (int k = 0; k < 4; k++)
-            { Hitbox[k] = reader.ReadByte(); }
-
+            Hitbox.Left = readSByte(reader);
+            Hitbox.Top = readSByte(reader);
+            Hitbox.Right = readSByte(reader);
+            Hitbox.Bottom = readSByte(reader);
 
             CenterX = -reader.ReadByte();
             CenterY = -reader.ReadByte();
@@ -104,10 +127,10 @@ namespace RSDK1
             writer.Write((byte)Width);
             writer.Write((byte)Height);
             writer.Write((byte)SpriteSheet);
-            writer.Write((byte)Hitbox[0]); //Hitbox values, Left
-            writer.Write((byte)Hitbox[1]); //Hitbox values, Top
-            writer.Write((byte)Hitbox[2]); //Hitbox values, Right
-            writer.Write((byte)Hitbox[3]); //Hitbox values, Bottom
+            writeSByte(writer, Hitbox.Left);
+            writeSByte(writer, Hitbox.Top);
+            writeSByte(writer, Hitbox.Right);
+            writeSByte(writer, Hitbox.Bottom);
             writer.Write((byte)-CenterX); 
             writer.Write((byte)-CenterY);
         }
@@ -123,7 +146,8 @@ namespace RSDK1
                 Width = Width,
                 Height = Height,
                 CenterX = CenterX,
-                CenterY = CenterY
+                CenterY = CenterY,
+                Hitbox = Hitbox
             };
         }
     }

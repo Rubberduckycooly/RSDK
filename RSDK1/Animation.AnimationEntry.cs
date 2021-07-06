@@ -63,7 +63,6 @@ namespace RSDK1
             Flag1 = flag1;
             Flag2 = flag2;
             FrameCount = framecount;
-            System.Console.WriteLine(name);
             Read(reader);
         }
 

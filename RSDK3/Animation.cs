@@ -40,7 +40,9 @@ namespace RSDK3
 
         public List<HitboxEntry> Hitboxes { get; }
 
-        public IEnumerable<string> HitboxTypes => null;
+        public IEnumerable<string> HitboxTypes { get; }
+
+        public Animation() { SpriteSheets = new List<string>(); Animations = new List<AnimationEntry>(); Hitboxes = new List<HitboxEntry>(); HitboxTypes = new List<string>(); }
 
         public Animation(BinaryReader reader)
         {

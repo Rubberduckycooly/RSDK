@@ -28,9 +28,43 @@ using System.Linq;
 
 namespace RSDK5
 {
+
+    //Dummy Class, done for convenience elsewhere
+    public class HitboxEntry : IHitboxEntry
+    {
+        public List<Hitbox> Hitboxes { get; set; }
+
+        public int Count => Hitboxes.Count;
+
+        public HitboxEntry()
+        {
+            Hitboxes = new List<Hitbox>();
+            for (int i = 0; i < 8; i++)
+                Hitboxes.Add(new Hitbox());
+        }
+
+        public IHitbox GetHitbox(int index)
+        {
+            return Hitboxes[index];
+        }
+
+        public IEnumerable<IHitbox> GetHitboxes()
+        {
+            return Hitboxes.Select(x => (IHitbox)x);
+        }
+
+        public void SetHitboxes(IEnumerable<IHitbox> hitboxes)
+        {
+            Hitboxes.Clear();
+            Hitboxes.AddRange(hitboxes
+                .Select(x => x as Hitbox)
+                .Where(x => x != null));
+        }
+    }
+
     public class Animation : IAnimation
     {
-        const int MagicCode = 0x00525053; // SPR\0
+        const int Signature = 0x00525053; // SPR\0
         
         public int Version => 5;
 
@@ -45,12 +79,15 @@ namespace RSDK5
         public List<AnimationEntry> Animations { get; }
 
         public IEnumerable<string> HitboxTypes => CollisionBoxes;
+        public List<HitboxEntry> Hitboxes { get; } //Dummy, used for simplicity
+
+        public Animation() { SpriteSheets = new List<string>(); CollisionBoxes = new List<string>(); Animations = new List<AnimationEntry>(); Hitboxes = new List<HitboxEntry>(); }
 
         public Animation(BinaryReader reader)
         {
-            int magicCode;
-            if ((magicCode = reader.ReadInt32()) != MagicCode)
-                throw new InvalidProgramException($"Magic Code {magicCode.ToString("X08")} not recognized.");
+            int signature;
+            if ((signature = reader.ReadInt32()) != Signature)
+                throw new InvalidProgramException($"Signature {signature.ToString("X08")} does not match the expected signature \"SPR\".");
 
             TotalFramesCount = reader.ReadInt32();
 
@@ -64,7 +101,7 @@ namespace RSDK5
             while (collisionBoxesCount-- > 0)
                 CollisionBoxes.Add(StringEncoding.GetString(reader));
 
-            var animationsCount = reader.ReadInt16();
+            int animationsCount = reader.ReadInt16();
             Animations = new List<AnimationEntry>(animationsCount);
             while (animationsCount-- > 0)
                 Animations.Add(new AnimationEntry(reader, CollisionBoxes.Count));
@@ -72,7 +109,7 @@ namespace RSDK5
 
         public void Factory(out IAnimationEntry o) { o = new AnimationEntry(CollisionBoxes.Count); }
         public void Factory(out IFrame o) { o = new Frame(CollisionBoxes.Count); }
-        public void Factory(out IHitboxEntry o) { o = null; }
+        public void Factory(out IHitboxEntry o) { o = new HitboxEntry(); }
 
         public IEnumerable<IAnimationEntry> GetAnimations()
         {
@@ -87,7 +124,7 @@ namespace RSDK5
                 .Where(x => x != null));
         }
 
-        public IEnumerable<IHitboxEntry> GetHitboxes() { return null; }
+        public IEnumerable<IHitboxEntry> GetHitboxes() { return new List<IHitboxEntry>(); }
 
         public void SetHitboxes(IEnumerable<IHitboxEntry> hitboxes) { }
         public void SetHitboxTypes(IEnumerable<string> hitboxTypes)
@@ -96,10 +133,9 @@ namespace RSDK5
             CollisionBoxes.AddRange(hitboxTypes);
         }
 
-
         public void SaveChanges(BinaryWriter writer)
         {
-            writer.Write(MagicCode);
+            writer.Write(Signature);
 
             var animationsCount = (ushort)Math.Min(Animations.Count, ushort.MaxValue);
             TotalFramesCount = Animations.Take(animationsCount).Sum(x => x.Frames.Count);
@@ -108,24 +144,16 @@ namespace RSDK5
             var spriteSheetsCount = (byte)Math.Min(SpriteSheets.Count, byte.MaxValue);
             writer.Write(spriteSheetsCount);
             for (int i = 0; i < spriteSheetsCount; i++)
-            {
-                var item = SpriteSheets[i];
-                writer.Write(StringEncoding.GetBytes(item));
-            }
+                writer.Write(StringEncoding.GetBytes(SpriteSheets[i]));
 
             var collisionBoxesCount = (byte)Math.Min(CollisionBoxes.Count, byte.MaxValue);
             writer.Write(collisionBoxesCount);
             for (int i = 0; i < collisionBoxesCount; i++)
-            {
-                var item = CollisionBoxes[i];
-                writer.Write(StringEncoding.GetBytes(item));
-            }
+                writer.Write(StringEncoding.GetBytes(CollisionBoxes[i]));
 
             writer.Write(animationsCount);
             for (int i = 0; i < animationsCount; i++)
-            {
                 Animations[i].SaveChanges(writer);
-            }
         }
     }
 }
